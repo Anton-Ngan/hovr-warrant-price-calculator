@@ -6,6 +6,7 @@ import type {
   HistoricalMetric,
 } from "./lib/types";
 import { HOVR } from "./lib/constants";
+import { MetricsBar } from "./components/MetricsBar";
 
 function App() {
   const [modelInputs, setModelInputs] = useState<ModelInputs>({
@@ -34,10 +35,7 @@ function App() {
         </button>
       </header>
 
-      {/* MetricsBar */}
-      <section className="bg-slate-900 rounded-lg p-4">
-        MetricsBar placeholder — stock: ${modelInputs.stockPrice}
-      </section>
+      <MetricsBar modelInputs={modelInputs} position={position} />
 
       {/* PositionBuilder + ModelInputs */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
