@@ -16,3 +16,6 @@ export const HOVR = {
   },
   sector: "eVTOL / Aerospace",
 };
+
+// Approx. U.S. Treasury yield matching the warrant's remaining maturity.
+export const RISK_FREE_RATE = 0.045;
