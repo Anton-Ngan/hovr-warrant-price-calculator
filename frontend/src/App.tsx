@@ -8,6 +8,7 @@ import type {
 import { HOVR } from "./lib/constants";
 import { MetricsBar } from "./components/MetricsBar";
 import { PositionBuilder } from "./components/PositionBuilder";
+import { ModelPayOffInputs } from "./components/ModelPayOffInputs";
 
 function App() {
   const [modelInputs, setModelInputs] = useState<ModelInputs>({
@@ -38,7 +39,6 @@ function App() {
 
       <MetricsBar modelInputs={modelInputs} position={position} />
 
-      {/* PositionBuilder + ModelInputs */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-slate-900 rounded-lg p-4">
           <PositionBuilder
@@ -48,7 +48,10 @@ function App() {
           />
         </div>
         <div className="bg-slate-900 rounded-lg p-4">
-          ModelInputs placeholder — warrant: ${modelInputs.warrantPrice}
+          <ModelPayOffInputs
+            modelInputs={modelInputs}
+            onChange={setModelInputs}
+          />
         </div>
       </section>
 
