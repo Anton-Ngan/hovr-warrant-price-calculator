@@ -20,3 +20,7 @@ export function formatNumber(value: number, decimals = 2): string {
     maximumFractionDigits: decimals,
   });
 }
+
+export function zeroIfNegligible(value: number, epsilon = 0.005): number {
+  return Math.abs(value) < epsilon ? 0 : value;
+}

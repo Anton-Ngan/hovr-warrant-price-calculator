@@ -1,6 +1,6 @@
 import { useBlackScholes } from "../hooks/useBlackScholes";
 import { computePositionQuantities } from "../lib/position";
-import { formatCurrency, formatPercent } from "../lib/format";
+import { formatCurrency, formatPercent, zeroIfNegligible } from "../lib/format";
 import { HOVR } from "../lib/constants";
 import type { ModelInputs, Position } from "../lib/types";
 
@@ -24,8 +24,8 @@ export function MetricsBar({ modelInputs, position }: MetricsBarProps) {
 
   const positionValue =
     sharesQty * modelInputs.stockPrice + warrantsQty * bs.price;
-  const profitLoss = positionValue - position.investment;
-  const vsMarket = bs.price - modelInputs.warrantPrice;
+  const profitLoss = zeroIfNegligible(positionValue - position.investment);
+  const vsMarket = zeroIfNegligible(bs.price - modelInputs.warrantPrice, 0.001);
   const fdMarketCap =
     modelInputs.stockPrice *
     (HOVR.sharesOutstanding.value + HOVR.totalWarrants);
@@ -36,13 +36,23 @@ export function MetricsBar({ modelInputs, position }: MetricsBarProps) {
     {
       label: "P/L",
       value: formatCurrency(profitLoss, 0),
-      colorClass: profitLoss >= 0 ? "text-emerald-400" : "text-red-400",
+      colorClass:
+        profitLoss > 0
+          ? "text-emerald-400"
+          : profitLoss < 0
+            ? "text-red-400"
+            : "text-slate-300",
     },
     { label: "BS Fair", value: formatCurrency(bs.price) },
     {
       label: "vs Mkt",
       value: formatCurrency(vsMarket),
-      colorClass: vsMarket >= 0 ? "text-emerald-400" : "text-red-400",
+      colorClass:
+        vsMarket > 0
+          ? "text-emerald-400"
+          : vsMarket < 0
+            ? "text-red-400"
+            : "text-slate-300",
     },
     { label: "IV", value: formatPercent(bs.iv) },
     { label: "FD Cap", value: formatCurrency(fdMarketCap, 0) },

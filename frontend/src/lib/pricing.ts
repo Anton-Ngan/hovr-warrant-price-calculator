@@ -61,7 +61,7 @@ export function solveIV(
 ): number {
   let low = 0.001;
   let high = 5.0;
-  const tolerance = Math.max(1e-9, marketPrice * 1e-9);
+  const tolerance = Math.max(1e-10, marketPrice * 1e-10);
   const maxIterations = 100;
 
   for (let i = 0; i < maxIterations; i++) {
