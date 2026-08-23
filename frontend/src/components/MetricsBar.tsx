@@ -45,7 +45,6 @@ export function MetricsBar({ modelInputs, position }: MetricsBarProps) {
       colorClass: vsMarket >= 0 ? "text-emerald-400" : "text-red-400",
     },
     { label: "IV", value: formatPercent(bs.iv) },
-    { label: "Δ", value: formatNumber(bs.delta, 3) },
     { label: "FD Cap", value: formatCurrency(fdMarketCap, 0) },
     { label: "Days to Expiry", value: `${daysToExpiry}d` },
   ];
