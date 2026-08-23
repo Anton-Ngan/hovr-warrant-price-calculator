@@ -1,6 +1,6 @@
 import { useBlackScholes } from "../hooks/useBlackScholes";
 import { computePositionQuantities } from "../lib/position";
-import { formatCurrency, formatPercent, formatNumber } from "../lib/format";
+import { formatCurrency, formatPercent } from "../lib/format";
 import { HOVR } from "../lib/constants";
 import type { ModelInputs, Position } from "../lib/types";
 
