@@ -7,6 +7,7 @@ import type {
 } from "./lib/types";
 import { HOVR } from "./lib/constants";
 import { MetricsBar } from "./components/MetricsBar";
+import { PositionBuilder } from "./components/PositionBuilder";
 
 function App() {
   const [modelInputs, setModelInputs] = useState<ModelInputs>({
@@ -40,7 +41,11 @@ function App() {
       {/* PositionBuilder + ModelInputs */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-slate-900 rounded-lg p-4">
-          PositionBuilder placeholder — investment: ${position.investment}
+          <PositionBuilder
+            position={position}
+            modelInputs={modelInputs}
+            onChange={setPosition}
+          />
         </div>
         <div className="bg-slate-900 rounded-lg p-4">
           ModelInputs placeholder — warrant: ${modelInputs.warrantPrice}
