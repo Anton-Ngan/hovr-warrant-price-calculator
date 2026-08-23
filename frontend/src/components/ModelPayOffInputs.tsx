@@ -1,5 +1,6 @@
 import { getBaseYearsToExpiry } from "../lib/time";
 import type { ModelInputs } from "../lib/types";
+import { NumberField } from "./NumberField";
 
 interface ModelInputsProps {
   modelInputs: ModelInputs;
@@ -13,33 +14,19 @@ export function ModelPayOffInputs({ modelInputs, onChange }: ModelInputsProps) {
     <div className="space-y-3">
       <h2 className="text-sm font-semibold text-slate-300">Model Inputs</h2>
 
-      <label className="block text-sm">
-        HOVR ($)
-        <input
-          type="number"
-          min={0}
-          step={0.01}
-          value={modelInputs.stockPrice}
-          onChange={(e) =>
-            onChange({ ...modelInputs, stockPrice: Number(e.target.value) })
-          }
-          className="mt-1 w-full bg-slate-800 rounded px-2 py-1"
-        />
-      </label>
+      <NumberField
+        label="HOVR ($)"
+        value={modelInputs.stockPrice}
+        step={0.01}
+        onChange={(stockPrice) => onChange({ ...modelInputs, stockPrice })}
+      />
 
-      <label className="block text-sm">
-        HOVRW ($)
-        <input
-          type="number"
-          min={0}
-          step={0.01}
-          value={modelInputs.warrantPrice}
-          onChange={(e) =>
-            onChange({ ...modelInputs, warrantPrice: Number(e.target.value) })
-          }
-          className="mt-1 w-full bg-slate-800 rounded px-2 py-1"
-        />
-      </label>
+      <NumberField
+        label="HOVRW ($)"
+        value={modelInputs.warrantPrice}
+        step={0.01}
+        onChange={(warrantPrice) => onChange({ ...modelInputs, warrantPrice })}
+      />
 
       <label className="block text-sm">
         IV override (%){" "}
