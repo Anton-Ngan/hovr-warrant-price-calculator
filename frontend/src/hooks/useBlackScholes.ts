@@ -12,18 +12,16 @@ export interface UseBlackScholesResult extends BlackScholesResult {
 export function useBlackScholes(
   modelInputs: ModelInputs,
 ): UseBlackScholesResult {
+  const baseT = getBaseYearsToExpiry();
+
   const T = useMemo(() => {
-    return Math.max(
-      0,
-      getBaseYearsToExpiry() - modelInputs.modelDateOffsetMonths / 12,
-    );
-  }, [modelInputs.modelDateOffsetMonths]);
+    return Math.max(0, baseT - modelInputs.modelDateOffsetMonths / 12);
+  }, [baseT, modelInputs.modelDateOffsetMonths]);
 
   const iv = useMemo(() => {
     if (modelInputs.impliedVolOverride !== null) {
       return modelInputs.impliedVolOverride;
     }
-    const baseT = getBaseYearsToExpiry();
     return solveIV(
       modelInputs.stockPrice,
       HOVR.strike,
@@ -32,6 +30,7 @@ export function useBlackScholes(
       modelInputs.warrantPrice,
     );
   }, [
+    baseT,
     modelInputs.impliedVolOverride,
     modelInputs.stockPrice,
     modelInputs.warrantPrice,
