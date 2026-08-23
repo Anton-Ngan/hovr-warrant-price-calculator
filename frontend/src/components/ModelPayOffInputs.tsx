@@ -1,5 +1,11 @@
 import { formatDate } from "../lib/format";
-import { getBaseDaysToExpiry, getDateAtOffset } from "../lib/time";
+import {
+  daysBetween,
+  getBaseDaysToExpiry,
+  getDateAtOffset,
+  parseDateInputValue,
+  toDateInputValue,
+} from "../lib/time";
 import type { ModelInputs } from "../lib/types";
 import { NumberField } from "./NumberField";
 
@@ -58,6 +64,24 @@ export function ModelPayOffInputs({ modelInputs, onChange }: ModelInputsProps) {
       <div className="text-sm">
         <div className="flex justify-between">
           <span>Model date</span>
+          <input
+            type="date"
+            value={toDateInputValue(
+              getDateAtOffset(modelInputs.modelDateOffsetDays),
+            )}
+            min={toDateInputValue(new Date())}
+            max={toDateInputValue(getDateAtOffset(maxDays))}
+            onChange={(e) => {
+              if (!e.target.value) return;
+              const picked = parseDateInputValue(e.target.value);
+              const offsetDays = Math.min(
+                Math.max(daysBetween(new Date(), picked), 0),
+                maxDays,
+              );
+              onChange({ ...modelInputs, modelDateOffsetDays: offsetDays });
+            }}
+            className="bg-slate-800 rounded px-2 py-0.5 text-sm"
+          />
           <span>
             {formatDate(getDateAtOffset(modelInputs.modelDateOffsetDays))}
           </span>
