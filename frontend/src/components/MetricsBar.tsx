@@ -17,14 +17,17 @@ interface Metric {
 
 export function MetricsBar({ modelInputs, position }: MetricsBarProps) {
   const bs = useBlackScholes(modelInputs);
-  const { sharesQty, warrantsQty } = computePositionQuantities(
+  const { sharesQty, warrantsQty, costBasis } = computePositionQuantities(
     position,
     modelInputs,
   );
 
   const positionValue =
     sharesQty * modelInputs.stockPrice + warrantsQty * bs.price;
-  const profitLoss = zeroIfNegligible(positionValue - position.investment);
+  const profitLoss = zeroIfNegligible(
+    positionValue - costBasis,
+    Math.max(0.01, costBasis * 1e-6),
+  );
   const vsMarket = zeroIfNegligible(bs.price - modelInputs.warrantPrice, 0.001);
   const fdMarketCap =
     modelInputs.stockPrice *

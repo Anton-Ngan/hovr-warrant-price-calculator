@@ -19,6 +19,7 @@ function App() {
   });
 
   const [position, setPosition] = useState<Position>({
+    mode: "plan",
     investment: 10_000,
     allocationPct: 50,
   });

@@ -5,12 +5,25 @@ export interface PositionQuantities {
   warrantsQty: number;
   stockAllocation: number;
   warrantAllocation: number;
+  costBasis: number;
 }
 
 export function computePositionQuantities(
   position: Position,
   modelInputs: ModelInputs,
 ): PositionQuantities {
+  if (position.mode === "track") {
+    const stockAllocation = position.sharesOwned * position.avgShareCost;
+    const warrantAllocation = position.warrantsOwned * position.avgWarrantCost;
+    return {
+      sharesQty: position.sharesOwned,
+      warrantsQty: position.warrantsOwned,
+      stockAllocation,
+      warrantAllocation,
+      costBasis: stockAllocation + warrantAllocation,
+    };
+  }
+
   const warrantAllocation =
     (position.allocationPct / 100) * position.investment;
   const stockAllocation = position.investment - warrantAllocation;
@@ -22,5 +35,11 @@ export function computePositionQuantities(
       ? warrantAllocation / modelInputs.warrantPrice
       : 0;
 
-  return { warrantAllocation, stockAllocation, sharesQty, warrantsQty };
+  return {
+    sharesQty,
+    warrantsQty,
+    stockAllocation,
+    warrantAllocation,
+    costBasis: position.investment,
+  };
 }
