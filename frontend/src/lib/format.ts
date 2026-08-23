@@ -21,6 +21,14 @@ export function formatNumber(value: number, decimals = 2): string {
   });
 }
 
+export function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export function zeroIfNegligible(value: number, epsilon = 0.005): number {
   return Math.abs(value) < epsilon ? 0 : value;
 }

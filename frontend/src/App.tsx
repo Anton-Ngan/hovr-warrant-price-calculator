@@ -15,7 +15,7 @@ function App() {
     stockPrice: 3.5,
     warrantPrice: 0.9,
     impliedVolOverride: null,
-    modelDateOffsetMonths: 0,
+    modelDateOffsetDays: 0,
   });
 
   const [position, setPosition] = useState<Position>({

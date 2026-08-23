@@ -2,7 +2,7 @@ export interface ModelInputs {
   stockPrice: number;
   warrantPrice: number;
   impliedVolOverride: number | null;
-  modelDateOffsetMonths: number;
+  modelDateOffsetDays: number;
 }
 
 export interface PlanPosition {

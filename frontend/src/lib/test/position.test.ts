@@ -6,7 +6,7 @@ const baseModelInputs: ModelInputs = {
   stockPrice: 5,
   warrantPrice: 1.5,
   impliedVolOverride: null,
-  modelDateOffsetMonths: 0,
+  modelDateOffsetDays: 0,
 };
 
 describe("computePositionQuantities in plan mode", () => {

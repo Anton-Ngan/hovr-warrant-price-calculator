@@ -15,8 +15,8 @@ export function useBlackScholes(
   const baseT = getBaseYearsToExpiry();
 
   const T = useMemo(() => {
-    return Math.max(0, baseT - modelInputs.modelDateOffsetMonths / 12);
-  }, [baseT, modelInputs.modelDateOffsetMonths]);
+    return Math.max(0, baseT - modelInputs.modelDateOffsetDays / 365.2425);
+  }, [baseT, modelInputs.modelDateOffsetDays]);
 
   const iv = useMemo(() => {
     if (modelInputs.impliedVolOverride !== null) {
