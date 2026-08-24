@@ -3,10 +3,12 @@ import { computePositionQuantities } from "../lib/position";
 import { formatCurrency, formatPercent, zeroIfNegligible } from "../lib/format";
 import { HOVR } from "../lib/constants";
 import type { ModelInputs, Position } from "../lib/types";
+import type { PayoffPoint } from "../lib/payoff";
 
 interface MetricsBarProps {
   modelInputs: ModelInputs;
   position: Position;
+  hoveredPoint?: PayoffPoint | null;
 }
 
 interface Metric {
@@ -15,24 +17,36 @@ interface Metric {
   colorClass?: string;
 }
 
-export function MetricsBar({ modelInputs, position }: MetricsBarProps) {
+export function MetricsBar({
+  modelInputs,
+  position,
+  hoveredPoint = null,
+}: MetricsBarProps) {
   const bs = useBlackScholes(modelInputs);
   const { sharesQty, warrantsQty, costBasis } = computePositionQuantities(
     position,
     modelInputs,
   );
 
-  const positionValue =
-    sharesQty * modelInputs.stockPrice + warrantsQty * bs.price;
+  const positionValue = hoveredPoint
+    ? hoveredPoint.positionValue
+    : sharesQty * modelInputs.stockPrice + warrantsQty * bs.price;
+  const bsFairPrice = hoveredPoint ? hoveredPoint.warrantBSPrice : bs.price;
+  const fdMarketCap = hoveredPoint
+    ? hoveredPoint.fdMarketCap
+    : modelInputs.stockPrice *
+      (HOVR.sharesOutstanding.value + HOVR.totalWarrants);
+
+  const daysToExpiry = Math.round(bs.T * 365.2425);
+
   const profitLoss = zeroIfNegligible(
     positionValue - costBasis,
     Math.max(0.01, costBasis * 1e-6),
   );
-  const vsMarket = zeroIfNegligible(bs.price - modelInputs.warrantPrice, 0.001);
-  const fdMarketCap =
-    modelInputs.stockPrice *
-    (HOVR.sharesOutstanding.value + HOVR.totalWarrants);
-  const daysToExpiry = Math.round(bs.T * 365.2425);
+  const vsMarket = zeroIfNegligible(
+    bsFairPrice - modelInputs.warrantPrice,
+    0.001,
+  );
 
   const metrics: Metric[] = [
     { label: "Position Value", value: formatCurrency(positionValue, 0) },
@@ -46,7 +60,7 @@ export function MetricsBar({ modelInputs, position }: MetricsBarProps) {
             ? "text-red-400"
             : "text-slate-300",
     },
-    { label: "BS Fair", value: formatCurrency(bs.price) },
+    { label: "BS Fair", value: formatCurrency(bsFairPrice) },
     {
       label: "vs Mkt",
       value: formatCurrency(vsMarket),

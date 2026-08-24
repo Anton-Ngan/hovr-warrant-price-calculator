@@ -28,6 +28,8 @@ function App() {
   const [historicalMetric, setHistoricalMetric] =
     useState<HistoricalMetric>("price");
 
+  const [chartCap, setChartCap] = useState(25);
+
   return (
     <div className="min-h-screen bg-slate-950 text-white p-4 space y-4">
       {/* Header */}
