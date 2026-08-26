@@ -131,6 +131,35 @@ export function PayoffChart({ modelInputs, position, chartCap }: PayoffChartProp
         z: 2,
       },
     ],
+    tooltip: {
+        trigger: "axis",
+        triggerOn: "mousemove",
+        axisPointer: {
+          type: "line",
+          snap: true,
+          lineStyle: { color: "#64748b", type: "dashed" },
+        },
+        backgroundColor: "#0f172a",
+        borderColor: "#1e293b",
+        textStyle: { color: "#e2e8f0" },
+        confine: true,
+        formatter: (raw) => {
+          const params = Array.isArray(raw) ? raw : [raw];
+          const idx = params[0]?.dataIndex;
+          if (idx == null) return "";
+          const p = points[idx];
+          if (!p) return "";
+          return [
+            `Stock: ${formatCurrency(p.stockPrice)}`,
+            `Position Value: ${formatCurrency(p.positionValue, 0)}`,
+            `All Stock P/L: ${formatCurrency(p.allStockPL, 0)}`,
+            `All Warrant P/L: ${formatCurrency(p.allWarrantPL, 0)}`,
+            `If Redeemed: ${formatCurrency(p.redeemedValue, 0)}`,
+            `BS Fair: ${formatCurrency(p.warrantBSPrice)}`,
+            `Delta: ${p.delta.toFixed(3)}`,
+          ].join("<br/>");
+        },
+      },
   };
 
   return (
