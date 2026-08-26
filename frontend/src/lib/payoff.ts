@@ -2,6 +2,7 @@ import { blackScholes } from "./pricing";
 import { HOVR, RISK_FREE_RATE } from "./constants";
 
 export interface PayoffPoint {
+  [key: string]: number;
   stockPrice: number;
   warrantBSPrice: number;
   positionValue: number;
