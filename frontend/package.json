@@ -12,9 +12,10 @@
   },
   "dependencies": {
     "@stdlib/stats-base-dists-normal": "^0.3.1",
+    "echarts": "^6.1.0",
+    "echarts-for-react": "^3.0.6",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "recharts": "^3.10.1"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
