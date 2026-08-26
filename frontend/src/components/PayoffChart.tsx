@@ -6,6 +6,7 @@ import { computePositionQuantities } from "../lib/position";
 import { formatCurrency } from "../lib/format";
 import type { ModelInputs, Position } from "../lib/types";
 import type { PayoffPoint } from "../lib/payoff";
+import { HOVR } from "../lib/constants";
 
 
 // CJS-guard to handle the default export of ReactEChartsCoreImport
@@ -26,6 +27,7 @@ function computeYMax(points: PayoffPoint[]): number {
     if (p.positionValue > max) max = p.positionValue;
     if (p.allStockPL > max) max = p.allStockPL;
     if (p.allWarrantPL > max) max = p.allWarrantPL;
+    if (p.redeemedValue > max) max = p.redeemedValue;
   }
   return max;
 }
@@ -33,6 +35,37 @@ function computeYMax(points: PayoffPoint[]): number {
 export function PayoffChart({ modelInputs, position, chartCap }: PayoffChartProps) {
   const points = usePayoffData(modelInputs, position, chartCap);
   const { costBasis } = computePositionQuantities(position, modelInputs);
+
+  const markLineConfig = {
+    silent: true,
+    symbol: "none" as const,
+    animation: false,
+    label: {
+      position: "end" as const,
+      formatter: (p: { name: string }) => p.name,
+      fontSize: 12,
+    },
+    data: [
+      {
+        name: `SPOT ${formatCurrency(modelInputs.stockPrice)}`,
+        xAxis: modelInputs.stockPrice,
+        lineStyle: { color: "#22c55e", type: "dashed" as const },
+        label: { color: "#22c55e" },
+      },
+      {
+        name: `STRIKE ${formatCurrency(HOVR.strike)}`,
+        xAxis: HOVR.strike,
+        lineStyle: { color: "#eab308", type: "dashed" as const },
+        label: { color: "#eab308" },
+      },
+      {
+        name: `REDEMPTION ${formatCurrency(HOVR.redemptionTrigger)}`,
+        xAxis: HOVR.redemptionTrigger,
+        lineStyle: { color: "#ef4444", type: "dashed" as const },
+        label: { color: "#ef4444" },
+      },
+    ],
+  };
 
   const option: EChartsOption = {
     backgroundColor: "transparent",
@@ -86,6 +119,7 @@ export function PayoffChart({ modelInputs, position, chartCap }: PayoffChartProp
         lineStyle: { color: "#199e70", width: 1.5, type: "dashed" },
         animation: false,
         z: 2,
+        markLine: markLineConfig,
       },
       {
         type: "line",
