@@ -14,6 +14,7 @@ import { ChartCapSlider } from "./components/ChartCapSlider";
 import type { PayoffPoint } from "./lib/payoff";
 import { GreeksGrid } from "./components/GreeksGrid";
 import { ThresholdList } from "./components/ThresholdList";
+import { ModelTerms } from "./components/ModelTerms";
 
 function App() {
   const [modelInputs, setModelInputs] = useState<ModelInputs>({
@@ -84,7 +85,6 @@ function App() {
         </button>
       </div>
 
-      {/* Main chart area */}
       <section className="bg-slate-900 rounded-lg p-4 space-y-3">
       {viewMode === "model" ? (
         <>
@@ -103,35 +103,34 @@ function App() {
       )}
     </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-slate-900 rounded-lg p-4">
-          <GreeksGrid
-            modelInputs={modelInputs}
-            hoveredPoint={hoveredPoint}
-          />
-        </div>
-        <div className="bg-slate-900 rounded-lg p-4">
-          <ThresholdList
-            modelInputs={modelInputs}
-            position={position}
-            chartCap={chartCap}
-            hoveredPoint={hoveredPoint}
-          />
-        </div>
-      </section>
+    <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-slate-900 rounded-lg p-4">
+        <GreeksGrid
+          modelInputs={modelInputs}
+          hoveredPoint={hoveredPoint}
+        />
+      </div>
+      <div className="bg-slate-900 rounded-lg p-4">
+        <ThresholdList
+          modelInputs={modelInputs}
+          position={position}
+          chartCap={chartCap}
+          hoveredPoint={hoveredPoint}
+        />
+      </div>
+    </section>
 
-      {/* Thresholds + Model Terms */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-slate-900 rounded-lg p-4">
-          Model Terms placeholder
-        </div>
-      </section>
+    <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-slate-900 rounded-lg p-4">
+        <ModelTerms modelInputs={modelInputs} />
+      </div>
+    </section>
 
-      {/* Footer */}
-      <footer className="text-xs text-slate-500 text-center py-4">
-        Not financial advice. Model limitations apply — verify independently.
-      </footer>
-    </div>
+    {/* Footer */}
+    <footer className="text-xs text-slate-500 text-center py-4">
+      Not financial advice. Model limitations apply — verify independently.
+    </footer>
+  </div>
   );
 }
 
