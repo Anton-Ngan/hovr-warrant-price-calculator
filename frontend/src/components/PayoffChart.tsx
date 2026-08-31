@@ -1,3 +1,5 @@
+import { memo, useLayoutEffect, useRef, useState } from "react";
+import type { ECharts } from "echarts/core";
 import ReactEChartsCoreImport from "echarts-for-react/lib/core";
 import type { EChartsOption } from "echarts";
 import echarts from "../lib/echarts-setup";
@@ -19,6 +21,7 @@ interface PayoffChartProps {
   modelInputs: ModelInputs;
   position: Position;
   chartCap: number;
+  onHover?: (point: PayoffPoint | null) => void;
 }
 
 function computeYMax(points: PayoffPoint[]): number {
@@ -32,10 +35,22 @@ function computeYMax(points: PayoffPoint[]): number {
   return max;
 }
 
-export function PayoffChart({ modelInputs, position, chartCap }: PayoffChartProps) {
+export const PayoffChart = memo(function PayoffChart({ modelInputs, position, chartCap, onHover, }: PayoffChartProps) {
   const points = usePayoffData(modelInputs, position, chartCap);
   const { costBasis } = computePositionQuantities(position, modelInputs);
 
+  const [pinned, setPinned] = useState<boolean>(false);
+  const chartRef = useRef<ECharts | null>(null);
+  const pinnedRef = useRef<boolean>(false);
+  const pinnedIndexRef = useRef<number | null>(null);
+  const lastHoverIndexRef = useRef<number | null>(null);
+  const onHoverRef = useRef(onHover);
+  const pointsRef = useRef<PayoffPoint[]>(points);
+
+  pinnedRef.current = pinned;
+  onHoverRef.current = onHover;
+  pointsRef.current = points;
+  
   const markLineConfig = {
     silent: true,
     symbol: "none" as const,
@@ -133,11 +148,19 @@ export function PayoffChart({ modelInputs, position, chartCap }: PayoffChartProp
     ],
     tooltip: {
         trigger: "axis",
-        triggerOn: "mousemove",
+        triggerOn: pinned ? "none" : "mousemove",
+        alwaysShowContent: pinned,
         axisPointer: {
           type: "line",
           snap: true,
           lineStyle: { color: "#64748b", type: "dashed" },
+          label: {
+            show: true,
+            backgroundColor: "#1e293b",
+            color: "#e2e8f0",
+            formatter: (params: { value: unknown }) =>
+              formatCurrency(Number(params.value)),
+          },
         },
         backgroundColor: "#0f172a",
         borderColor: "#1e293b",
@@ -162,12 +185,69 @@ export function PayoffChart({ modelInputs, position, chartCap }: PayoffChartProp
       },
   };
 
+  function applyPinnedDecorations(chart: ECharts, idx: number) {
+    const p = pointsRef.current[idx];
+    if (!p) return;
+  
+    chart.dispatchAction({
+      type: "showTip",
+      seriesIndex: 0,
+      dataIndex: idx,
+    });
+  }
+  
+  useLayoutEffect(() => {
+    const chart = chartRef.current;
+    const idx = pinnedIndexRef.current;
+    if (!chart || !pinned || idx == null) return;
+    applyPinnedDecorations(chart, idx);
+  });
+
+  const onEvents = {
+    updateAxisPointer: (params: { dataIndex?: number }) => {
+      if (params.dataIndex == null) return;
+      lastHoverIndexRef.current = params.dataIndex;
+  
+      if (pinnedRef.current) return;
+  
+      const p = pointsRef.current[params.dataIndex];
+      onHoverRef.current?.(p ?? null);
+    },
+    globalout: () => {
+      if (pinnedRef.current) return;
+      lastHoverIndexRef.current = null;
+      onHoverRef.current?.(null);
+    },
+  };
+  
+  const handleChartReady = (chart: ECharts) => {
+    chartRef.current = chart;
+    chart.getZr().on("click", (event: { offsetX: number; offsetY: number }) => {
+      if (!chart.containPixel("grid", [event.offsetX, event.offsetY])) return;
+  
+      if (pinnedRef.current) {
+        pinnedIndexRef.current = null;
+        setPinned(false);
+        chart.dispatchAction({ type: "hideTip" });
+        return;
+      }
+  
+      const idx = lastHoverIndexRef.current;
+      if (idx == null) return;
+      pinnedIndexRef.current = idx;
+      onHoverRef.current?.(pointsRef.current[idx] ?? null);
+      setPinned(true);
+    });
+  };
+
   return (
     <ReactEChartsCore
       echarts={echarts}
       option={option}
       notMerge={true}
-      style={{ height: 600 }}
+      style={{ height: 900 }}
+      onEvents={onEvents}
+      onChartReady={handleChartReady}
     />
   );
-}
+});

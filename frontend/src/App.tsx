@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useDeferredValue, useState } from "react";
 import type {
   ModelInputs,
   Position,
@@ -9,6 +9,9 @@ import { HOVR } from "./lib/constants";
 import { MetricsBar } from "./components/MetricsBar";
 import { PositionBuilder } from "./components/PositionBuilder";
 import { ModelPayOffInputs } from "./components/ModelPayOffInputs";
+import { PayoffChart } from "./components/PayoffChart";
+import { ChartCapSlider } from "./components/ChartCapSlider";
+import type { PayoffPoint } from "./lib/payoff";
 
 function App() {
   const [modelInputs, setModelInputs] = useState<ModelInputs>({
@@ -30,6 +33,11 @@ function App() {
 
   const [chartCap, setChartCap] = useState(25);
 
+  const [hoveredPoint, setHoveredPoint] = useState<PayoffPoint | null>(null);
+  const deferredModelInputs = useDeferredValue(modelInputs);
+  const deferredPosition = useDeferredValue(position);
+  const deferredChartCap = useDeferredValue(chartCap);
+
   return (
     <div className="min-h-screen bg-slate-950 text-white p-4 space y-4">
       {/* Header */}
@@ -40,7 +48,7 @@ function App() {
         </button>
       </header>
 
-      <MetricsBar modelInputs={modelInputs} position={position} />
+      <MetricsBar modelInputs={modelInputs} position={position} hoveredPoint={hoveredPoint}/>
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-slate-900 rounded-lg p-4">
@@ -75,11 +83,23 @@ function App() {
       </div>
 
       {/* Main chart area */}
-      <section className="bg-slate-900 rounded-lg p-4 h-64 flex items-center justify-center text-slate-500">
-        {viewMode === "model"
-          ? "Payoff chart placeholder"
-          : `Historical chart placeholder (${historicalMetric})`}
-      </section>
+      <section className="bg-slate-900 rounded-lg p-4 space-y-3">
+      {viewMode === "model" ? (
+        <>
+          <ChartCapSlider value={chartCap} onChange={setChartCap} />
+          <PayoffChart
+            modelInputs={deferredModelInputs}
+            position={deferredPosition}
+            chartCap={deferredChartCap}
+            onHover={setHoveredPoint}
+          />
+        </>
+      ) : (
+        <div className="h-64 flex items-center justify-center text-slate-500">
+          Historical chart placeholder ({historicalMetric})
+        </div>
+      )}
+    </section>
 
       {/* BS Market Check + Greeks */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
