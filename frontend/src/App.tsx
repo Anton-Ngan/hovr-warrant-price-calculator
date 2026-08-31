@@ -12,6 +12,7 @@ import { ModelPayOffInputs } from "./components/ModelPayOffInputs";
 import { PayoffChart } from "./components/PayoffChart";
 import { ChartCapSlider } from "./components/ChartCapSlider";
 import type { PayoffPoint } from "./lib/payoff";
+import { GreeksGrid } from "./components/GreeksGrid";
 
 function App() {
   const [modelInputs, setModelInputs] = useState<ModelInputs>({
@@ -106,7 +107,12 @@ function App() {
         <div className="bg-slate-900 rounded-lg p-4">
           BS Market Check placeholder
         </div>
-        <div className="bg-slate-900 rounded-lg p-4">Greeks placeholder</div>
+        <div className="bg-slate-900 rounded-lg p-4">
+          <GreeksGrid
+            modelInputs={modelInputs}
+            hoveredPoint={hoveredPoint}
+          />
+        </div>
       </section>
 
       {/* Thresholds + Model Terms */}
