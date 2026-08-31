@@ -200,6 +200,12 @@ export const PayoffChart = memo(function PayoffChart({ modelInputs, position, ch
     const chart = chartRef.current;
     const idx = pinnedIndexRef.current;
     if (!chart || !pinned || idx == null) return;
+
+    const p = points[idx] ?? points[points.length - 1];
+    if (!p) return;
+    
+    pinnedIndexRef.current = points[idx] ? idx : points.length - 1;
+    onHoverRef.current?.(p);
     applyPinnedDecorations(chart, idx);
   });
 
