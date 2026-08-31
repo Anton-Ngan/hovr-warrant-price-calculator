@@ -45,7 +45,7 @@ export function blackScholes(
   const delta = Nd1;
   const gamma = pdfD1 / (S * sigma * sqrtT);
   const theta =
-    (-(S * pdfD1 * sigma) / (2 * sqrtT) - r * discountedK * Nd2) / 365;
+    (-(S * pdfD1 * sigma) / (2 * sqrtT) - r * discountedK * Nd2);
   const vega = (S * pdfD1 * sqrtT) / 100;
   const rho = (discountedK * T * Nd2) / 100;
 
