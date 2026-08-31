@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computePayoffPoints, type PayoffPoint } from "../payoff";
+import { computePayoffPoints, type PayoffPoint, findBreakevenPrice } from "../payoff";
 import { blackScholes } from "../pricing";
 import { HOVR, RISK_FREE_RATE } from "../constants";
 
@@ -143,5 +143,18 @@ describe("computePayoffPoints @ Greeks and FD cap", () => {
   it("fdMarketCap is 0 at stockPrice 0 and grows with stock price", () => {
     expect(points[0].fdMarketCap).toBe(0);
     expect(points[1000].fdMarketCap).toBeGreaterThan(points[500].fdMarketCap);
+  });
+});
+
+describe("findBreakevenPrice", () => {
+  it("findBreakevenPrice is the first grid point with positionPL >= 0", () => {
+    const points = computePayoffPoints(baseInputs);
+    const be = findBreakevenPrice(points);
+    expect(be).not.toBeNull();
+    const idx = Math.round(be! * 100);
+    expect(points[idx].positionPL).toBeGreaterThanOrEqual(0);
+    if (idx > 0) {
+      expect(points[idx - 1].positionPL).toBeLessThan(0);
+    }
   });
 });

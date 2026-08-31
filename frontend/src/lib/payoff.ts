@@ -94,3 +94,10 @@ export function computePayoffPoints({
   }
   return points;
 }
+
+export function findBreakevenPrice(points: PayoffPoint[]): number | null {
+  for (const p of points) {
+    if (p.positionPL >= 0) return p.stockPrice;
+  }
+  return null;
+}
