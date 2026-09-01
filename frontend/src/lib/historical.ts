@@ -3,13 +3,13 @@ import { HOVR, RISK_FREE_RATE } from "./constants";
 import { yearsBetween } from "./time";
 
 export interface HistoricalPoint {
+  [key: string]: number;
   date: number; 
   stockPrice: number;
   warrantPrice: number;
   iv: number;
   bsPrice: number;
   bsVsMarket: number;
-  delta: number;
 }
 
 /** Tiny seeded RNG so the fake series is stable across re-renders. */
@@ -45,7 +45,7 @@ export function generateSimulatedHistory(
     stockPrice = Math.max(0.25, stockPrice * (1 + (rand() - 0.48) * 0.055));
     const T = Math.max(0, yearsBetween(date, expiry));
     const iv = Math.min(2.2, Math.max(0.35, 0.92 + (rand() - 0.5) * 0.28));
-    const { price: bsPrice, delta } = blackScholes(
+    const { price: bsPrice } = blackScholes(
       stockPrice,
       HOVR.strike,
       T,
@@ -61,7 +61,6 @@ export function generateSimulatedHistory(
       iv,
       bsPrice,
       bsVsMarket: bsPrice - warrantPrice,
-      delta,
     });
   }
 

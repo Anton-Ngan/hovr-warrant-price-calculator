@@ -15,6 +15,7 @@ import type { PayoffPoint } from "./lib/payoff";
 import { GreeksGrid } from "./components/GreeksGrid";
 import { ThresholdList } from "./components/ThresholdList";
 import { ModelTerms } from "./components/ModelTerms";
+import { HistoricalChart } from "./components/HistoricalChart";
 
 function App() {
   const [modelInputs, setModelInputs] = useState<ModelInputs>({
@@ -72,13 +73,18 @@ function App() {
       {/* View toggle */}
       <div className="flex justify-center gap-2">
         <button
-          onClick={() => setViewMode("model")}
+          onClick={() => {
+            setViewMode("model");
+          }}
           className={`px-3 py-1 rounded ${viewMode === "model" ? "bg-blue-600" : "bg-slate-800"}`}
         >
           Model
         </button>
         <button
-          onClick={() => setViewMode("historical")}
+          onClick={() => {
+            setViewMode("historical");
+            setHoveredPoint(null);
+          }}
           className={`px-3 py-1 rounded ${viewMode === "historical" ? "bg-blue-600" : "bg-slate-800"}`}
         >
           Historical
@@ -86,21 +92,22 @@ function App() {
       </div>
 
       <section className="bg-slate-900 rounded-lg p-4 space-y-3">
-      {viewMode === "model" ? (
-        <>
-          <ChartCapSlider value={chartCap} onChange={setChartCap} />
-          <PayoffChart
-            modelInputs={deferredModelInputs}
-            position={deferredPosition}
-            chartCap={deferredChartCap}
-            onHover={setHoveredPoint}
+        {viewMode === "model" ? (
+          <>
+            <ChartCapSlider value={chartCap} onChange={setChartCap} />
+            <PayoffChart
+              modelInputs={deferredModelInputs}
+              position={deferredPosition}
+              chartCap={deferredChartCap}
+              onHover={setHoveredPoint}
+            />
+          </>
+        ) : (
+          <HistoricalChart
+            metric={historicalMetric}
+            onMetricChange={setHistoricalMetric}
           />
-        </>
-      ) : (
-        <div className="h-64 flex items-center justify-center text-slate-500">
-          Historical chart placeholder ({historicalMetric})
-        </div>
-      )}
+        )}
     </section>
 
     <section className="grid grid-cols-1 md:grid-cols-2 gap-4">

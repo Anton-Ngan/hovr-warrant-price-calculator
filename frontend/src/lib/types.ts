@@ -21,4 +21,4 @@ export interface TrackPosition {
 
 export type Position = PlanPosition | TrackPosition;
 export type ViewMode = "model" | "historical";
-export type HistoricalMetric = "price" | "iv" | "bsVsMarket" | "delta";
+export type HistoricalMetric = "price" | "iv";
