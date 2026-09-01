@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { blackScholes, solveIV, type BlackScholesResult } from "../lib/pricing";
 import { HOVR, RISK_FREE_RATE } from "../lib/constants";
 import type { ModelInputs } from "../lib/types";
-import { getBaseYearsToExpiry } from "../lib/time";
+import { getBaseDaysToExpiry } from "../lib/time";
 
 export interface UseBlackScholesResult extends BlackScholesResult {
   T: number; // years to expiry, after applying the model-date offset
@@ -12,11 +12,12 @@ export interface UseBlackScholesResult extends BlackScholesResult {
 export function useBlackScholes(
   modelInputs: ModelInputs,
 ): UseBlackScholesResult {
-  const baseT = getBaseYearsToExpiry();
-
+  const baseDays = getBaseDaysToExpiry();
+  
+  const baseT = baseDays / 365.2425;
   const T = useMemo(() => {
-    return Math.max(0, baseT - modelInputs.modelDateOffsetDays / 365.2425);
-  }, [baseT, modelInputs.modelDateOffsetDays]);
+    return Math.max(0, (baseDays - modelInputs.modelDateOffsetDays) / 365.2425);
+  }, [baseDays, modelInputs.modelDateOffsetDays]);
 
   const iv = useMemo(() => {
     if (modelInputs.impliedVolOverride !== null) {
