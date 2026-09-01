@@ -61,19 +61,8 @@ export function MetricsBar({
             : "text-slate-300",
     },
     { label: "BS Fair", value: formatCurrency(bsFairPrice) },
-    {
-      label: "vs Mkt",
-      value: formatCurrency(vsMarket),
-      colorClass:
-        vsMarket > 0
-          ? "text-emerald-400"
-          : vsMarket < 0
-            ? "text-red-400"
-            : "text-slate-300",
-    },
     { label: "IV", value: formatPercent(bs.iv) },
     { label: "FD Cap", value: formatCurrency(fdMarketCap, 0) },
-    { label: "Days to Expiry", value: `${daysToExpiry}d` },
   ];
 
   return (
