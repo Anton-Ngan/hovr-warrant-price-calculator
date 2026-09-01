@@ -16,6 +16,7 @@ import { GreeksGrid } from "./components/GreeksGrid";
 import { ThresholdList } from "./components/ThresholdList";
 import { ModelTerms } from "./components/ModelTerms";
 import { HistoricalChart } from "./components/HistoricalChart";
+import { AboutModal } from "./components/AboutModal";
 
 function App() {
   const [modelInputs, setModelInputs] = useState<ModelInputs>({
@@ -42,14 +43,21 @@ function App() {
   const deferredPosition = useDeferredValue(position);
   const deferredChartCap = useDeferredValue(chartCap);
 
+  const [aboutOpen, setAboutOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-slate-950 text-white p-4 space y-4">
       {/* Header */}
       <header className="flex items-center justify-between">
         <h1 className="text-x1 font bold">{HOVR.warrantTicker} Risk Profile</h1>
-        <button className="text-sm text-slate-400 hover:text-white">
+        <button
+          type="button"
+          className="text-sm text-slate-400 hover:text-white"
+          onClick={() => setAboutOpen(true)}
+        >
           About
         </button>
+        <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
       </header>
 
       <MetricsBar modelInputs={modelInputs} position={position} hoveredPoint={hoveredPoint}/>
