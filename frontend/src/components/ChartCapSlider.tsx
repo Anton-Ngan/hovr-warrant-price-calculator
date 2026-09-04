@@ -5,9 +5,9 @@ interface ChartCapSliderProps {
 
 export function ChartCapSlider({ value, onChange }: ChartCapSliderProps) {
   return (
-    <div className="flex items-center gap-3 text-sm">
-      <span className="text-slate-400 whitespace-nowrap">
-        Chart range: $0 - {value}
+    <label className="flex items-center gap-2 text-xs text-zinc-400 shrink-0">
+      <span className="whitespace-nowrap uppercase tracking-wide">
+        Range $0–{value}
       </span>
       <input
         type="range"
@@ -15,8 +15,8 @@ export function ChartCapSlider({ value, onChange }: ChartCapSliderProps) {
         max={50}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="flex-1"
+        className="slider-clean w-24"
       />
-    </div>
+    </label>
   );
 }

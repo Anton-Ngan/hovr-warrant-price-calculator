@@ -14,7 +14,7 @@ export function NumberField({
   step,
 }: NumberFieldProps) {
   return (
-    <label className="block text-sm">
+    <label className="block text-xs uppercase tracking-wide text-zinc-400">
       {label}
       <input
         type="number"
@@ -22,7 +22,7 @@ export function NumberField({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-1 w-full bg-slate-800 rounded px-2 py-1"
+        className="field-input mt-0.5"
       />
     </label>
   );

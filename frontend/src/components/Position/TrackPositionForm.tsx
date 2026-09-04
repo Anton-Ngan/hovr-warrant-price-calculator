@@ -1,4 +1,4 @@
-import { NumberField } from "../NumberField";
+import { NumberField } from "../UI/NumberField";
 import type { TrackPosition } from "../../lib/types";
 
 interface TrackPositionFormProps {

@@ -31,7 +31,7 @@ export function AboutModal({ open, onClose }: AboutModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="about-title"
-        className="bg-slate-900 rounded-lg max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 shadow-xl"
+        className="bg-zinc-900 rounded-xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 shadow-xl ring-1 ring-white/10"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 mb-4">
@@ -41,13 +41,13 @@ export function AboutModal({ open, onClose }: AboutModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-white text-sm"
+            className="text-xs px-2.5 py-1 rounded-md text-zinc-300 hover:text-white hover:bg-white/5"
           >
             Close
           </button>
         </div>
 
-        <div className="space-y-4 text-sm text-slate-300">
+        <div className="space-y-4 text-sm text-zinc-300">
           <p>
             A payoff and risk-profile calculator for {HOVR.company} (
             {HOVR.stockTicker}/{HOVR.warrantTicker}) {HOVR.sector} warrants.
@@ -57,10 +57,10 @@ export function AboutModal({ open, onClose }: AboutModalProps) {
           </p>
 
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">
               Warrant terms
             </h3>
-            <ul className="space-y-1 text-slate-400">
+            <ul className="space-y-1 text-zinc-300">
               <li>Strike {HOVR.strike.toFixed(2)} USD</li>
               <li>Expiry {formatDate(expiry)}</li>
               <li>
@@ -80,10 +80,10 @@ export function AboutModal({ open, onClose }: AboutModalProps) {
           </div>
 
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">
               What it assumes
             </h3>
-            <ul className="list-disc pl-4 space-y-1 text-slate-400">
+            <ul className="list-disc pl-4 space-y-1 text-zinc-300">
               <li>
                 The warrant is modelled as a European call. Early exercise and
                 the exact redemption mechanics are simplified.
@@ -99,7 +99,7 @@ export function AboutModal({ open, onClose }: AboutModalProps) {
             </ul>
           </div>
 
-          <p className="text-slate-500 text-xs leading-relaxed">
+          <p className="text-zinc-400 text-sm leading-relaxed">
             Informational only — not advice or a recommendation. Data and
             calculations may be wrong or delayed. Black-Scholes is a model, not
             the market. Verify independently before making any decision.

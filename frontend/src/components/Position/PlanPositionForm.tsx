@@ -1,4 +1,4 @@
-import { NumberField } from "../NumberField";
+import { NumberField } from "../UI/NumberField";
 import type { PlanPosition } from "../../lib/types";
 
 interface PlanPositionFormProps {
@@ -18,8 +18,8 @@ export function PlanPositionForm({
         onChange={(investment) => onChange({ ...position, investment })}
       />
 
-      <label className="block text-sm">
-        Allocation to warrants: {position.allocationPct}%
+      <label className="block text-xs uppercase tracking-wide text-zinc-400">
+        Allocation to warrants {position.allocationPct}%
         <input
           type="range"
           min={0}
@@ -28,7 +28,7 @@ export function PlanPositionForm({
           onChange={(e) =>
             onChange({ ...position, allocationPct: Number(e.target.value) })
           }
-          className="mt-1 w-full"
+          className="slider-clean mt-2 w-full"
         />
       </label>
     </>

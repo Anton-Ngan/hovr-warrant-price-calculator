@@ -1,1 +1,82 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+.slider-clean {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+  outline: none;
+}
+
+.slider-clean::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  cursor: pointer;
+  border: 2px solid #18181b;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.25);
+}
+
+.slider-clean::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  cursor: pointer;
+  border: 2px solid #18181b;
+}
+
+.field-input {
+  width: 100%;
+  background: rgb(255 255 255 / 0.045);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 8px;
+  padding: 6px 9px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: #f4f4f5;
+  font-family: inherit;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: rgb(255 255 255 / 0.22);
+  background: rgb(255 255 255 / 0.07);
+}
+
+.field-input::placeholder {
+  color: rgb(161 161 170);
+}
+
+.field-input::-webkit-outer-spin-button,
+.field-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.field-input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.slider-clean::-moz-range-track {
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+}

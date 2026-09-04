@@ -12,29 +12,35 @@ export function PositionModeToggle({
   onChange,
 }: PositionModeToggleProps) {
   return (
-    <div className="flex gap-1">
+    <div className="inline-flex rounded-lg bg-white/5 p-0.5 ring-1 ring-white/10">
       <button
+        type="button"
         onClick={() =>
           onChange({ mode: "plan", investment: 10000, allocationPct: 50 })
         }
-        className={`text-xs px-2 py-1 rounded ${
-          position.mode === "plan" ? "bg-blue-600" : "bg-slate-800"
+        className={`text-xs px-2.5 py-1 rounded-md ${
+          position.mode === "plan"
+            ? "bg-white/10 text-white"
+            : "text-zinc-300 hover:text-zinc-100"
         }`}
       >
         Plan
       </button>
       <button
+        type="button"
         onClick={() =>
           onChange({
             mode: "track",
-            sharesOwned: 0,
+            sharesOwned: 1000,
             avgShareCost: modelInputs.stockPrice,
-            warrantsOwned: 0,
+            warrantsOwned: 5000,
             avgWarrantCost: modelInputs.warrantPrice,
           })
         }
-        className={`text-xs px-2 py-1 rounded ${
-          position.mode === "track" ? "bg-blue-600" : "bg-slate-800"
+        className={`text-xs px-2.5 py-1 rounded-md ${
+          position.mode === "track"
+            ? "bg-white/10 text-white"
+            : "text-zinc-300 hover:text-zinc-100"
         }`}
       >
         Track

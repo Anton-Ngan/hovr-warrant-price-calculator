@@ -1,9 +1,9 @@
-import { computePositionQuantities } from "../lib/position";
-import { formatCurrency, formatNumber } from "../lib/format";
-import { PositionModeToggle } from "./Position/PositionModeToggle";
-import { PlanPositionForm } from "./Position/PlanPositionForm";
-import { TrackPositionForm } from "./Position/TrackPositionForm";
-import type { ModelInputs, Position } from "../lib/types";
+import { computePositionQuantities } from "../../lib/position";
+import { formatCurrency, formatNumber } from "../../lib/format";
+import { PositionModeToggle } from "./PositionModeToggle";
+import { PlanPositionForm } from "./PlanPositionForm";
+import { TrackPositionForm } from "./TrackPositionForm";
+import type { ModelInputs, Position } from "../../lib/types";
 
 interface PositionBuilderProps {
   position: Position;
@@ -22,7 +22,9 @@ export function PositionBuilder({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-300">Position</h2>
+        <h2 className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          Position
+        </h2>
         <PositionModeToggle
           position={position}
           modelInputs={modelInputs}
@@ -36,7 +38,7 @@ export function PositionBuilder({
         <TrackPositionForm position={position} onChange={onChange} />
       )}
 
-      <div className="text-xs text-slate-400 grid grid-cols-2 gap-2">
+      <div className="text-xs text-zinc-400 grid grid-cols-2 gap-2">
         <div>
           Stock: {formatCurrency(stockAllocation, 0)}
           <br />
