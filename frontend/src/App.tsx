@@ -7,7 +7,7 @@ import type {
 } from "./lib/types";
 import { HOVR } from "./lib/constants";
 import { MetricsBar } from "./components/MetricsBar";
-import { PositionBuilder } from "./components/PositionBuilder";
+import { PositionBuilder } from "./components/Position/PositionBuilder";
 import { ModelPayOffInputs } from "./components/ModelPayOffInputs";
 import { PayoffChart } from "./components/PayoffChart";
 import { ChartCapSlider } from "./components/ChartCapSlider";
@@ -17,6 +17,10 @@ import { ThresholdList } from "./components/ThresholdList";
 import { ModelTerms } from "./components/ModelTerms";
 import { HistoricalChart } from "./components/HistoricalChart";
 import { AboutModal } from "./components/AboutModal";
+import { Card } from "./components/UI/Card";
+import { ModelDateControl } from "./components/ModelDateControl";
+import { SegmentedControl } from "./components/UI/SegmentedControl";
+import { formatDate } from "./lib/format";
 
 function App() {
   const [modelInputs, setModelInputs] = useState<ModelInputs>({
@@ -46,13 +50,19 @@ function App() {
   const [aboutOpen, setAboutOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-4 space y-4">
-      {/* Header */}
-      <header className="flex items-center justify-between">
-        <h1 className="text-x1 font bold">{HOVR.warrantTicker} Risk Profile</h1>
+    <div className="h-screen overflow-hidden flex flex-col bg-zinc-950 text-zinc-100 font-sans">
+      <header className="shrink-0 flex items-center justify-between gap-4 px-4 py-2 border-b border-white/5">
+        <div className="flex items-baseline gap-3 min-w-0">
+          <h1 className="text-lg font-semibold tracking-tight truncate">
+            {HOVR.stockTicker} & {HOVR.warrantTicker} Risk Profile
+          </h1>
+          <span className="text-sm text-zinc-400 tabular-nums shrink-0">
+            {formatDate(new Date())}
+          </span>
+        </div>
         <button
           type="button"
-          className="text-sm text-slate-400 hover:text-white"
+          className="text-xs px-2.5 py-1 rounded-md text-zinc-300 hover:text-white hover:bg-white/5 shrink-0"
           onClick={() => setAboutOpen(true)}
         >
           About
@@ -60,92 +70,94 @@ function App() {
         <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
       </header>
 
-      <MetricsBar modelInputs={modelInputs} position={position} hoveredPoint={hoveredPoint}/>
-
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-slate-900 rounded-lg p-4">
-          <PositionBuilder
-            position={position}
-            modelInputs={modelInputs}
-            onChange={setPosition}
-          />
-        </div>
-        <div className="bg-slate-900 rounded-lg p-4">
-          <ModelPayOffInputs
-            modelInputs={modelInputs}
-            onChange={setModelInputs}
-          />
-        </div>
-      </section>
-
-      {/* View toggle */}
-      <div className="flex justify-center gap-2">
-        <button
-          onClick={() => {
-            setViewMode("model");
-          }}
-          className={`px-3 py-1 rounded ${viewMode === "model" ? "bg-blue-600" : "bg-slate-800"}`}
-        >
-          Model
-        </button>
-        <button
-          onClick={() => {
-            setViewMode("historical");
-            setHoveredPoint(null);
-          }}
-          className={`px-3 py-1 rounded ${viewMode === "historical" ? "bg-blue-600" : "bg-slate-800"}`}
-        >
-          Historical
-        </button>
-      </div>
-
-      <section className="bg-slate-900 rounded-lg p-4 space-y-3">
-        {viewMode === "model" ? (
-          <>
-            <ChartCapSlider value={chartCap} onChange={setChartCap} />
-            <PayoffChart
-              modelInputs={deferredModelInputs}
-              position={deferredPosition}
-              chartCap={deferredChartCap}
-              onHover={setHoveredPoint}
+      <div className="flex-1 min-h-0 grid grid-cols-[280px_minmax(0,1fr)_300px] gap-3 p-3">
+        <aside className="min-h-0 flex flex-col gap-3 overflow-y-auto">
+          <Card className="shrink-0">
+            <PositionBuilder
+              position={position}
+              modelInputs={modelInputs}
+              onChange={setPosition}
             />
-          </>
-        ) : (
-          <HistoricalChart
-            metric={historicalMetric}
-            onMetricChange={setHistoricalMetric}
-          />
-        )}
-    </section>
+          </Card>
+          <Card className="shrink-0">
+            <ModelPayOffInputs
+              modelInputs={modelInputs}
+              onChange={setModelInputs}
+            />
+          </Card>
+        </aside>
 
-    <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="bg-slate-900 rounded-lg p-4">
-        <GreeksGrid
-          modelInputs={modelInputs}
-          hoveredPoint={hoveredPoint}
-        />
-      </div>
-      <div className="bg-slate-900 rounded-lg p-4">
-        <ThresholdList
-          modelInputs={modelInputs}
-          position={position}
-          chartCap={chartCap}
-          hoveredPoint={hoveredPoint}
-        />
-      </div>
-    </section>
+        <main className="min-h-0 flex flex-col gap-2">
+          <div className="flex items-start gap-3 shrink-0">
+            <div className="shrink-0 pt-0.5">
+              <SegmentedControl
+                value={viewMode}
+                onChange={(next) => {
+                  setViewMode(next);
+                  if (next === "historical") setHoveredPoint(null);
+                }}
+                options={[
+                  { id: "model", label: "Model" },
+                  { id: "historical", label: "Historical" },
+                ]}
+              />
+            </div>
+            {viewMode === "model" ? (
+              <>
+                <ModelDateControl
+                  modelInputs={modelInputs}
+                  onChange={setModelInputs}
+                />
+                <ChartCapSlider value={chartCap} onChange={setChartCap} />
+              </>
+            ) : null}
+          </div>
 
-    <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="bg-slate-900 rounded-lg p-4">
-        <ModelTerms modelInputs={modelInputs} />
-      </div>
-    </section>
+          <Card className="flex-1 min-h-0 p-2 overflow-hidden">
+            {viewMode === "model" ? (
+              <PayoffChart
+                modelInputs={deferredModelInputs}
+                position={deferredPosition}
+                chartCap={deferredChartCap}
+                onHover={setHoveredPoint}
+              />
+            ) : (
+              <HistoricalChart
+                metric={historicalMetric}
+                onMetricChange={setHistoricalMetric}
+              />
+            )}
+          </Card>
+        </main>
 
-    {/* Footer */}
-    <footer className="text-xs text-slate-500 text-center py-4">
-      Not financial advice. Model limitations apply — verify independently.
-    </footer>
-  </div>
+        <aside className="min-h-0 flex flex-col gap-3 overflow-y-auto">
+          <Card className="shrink-0">
+            <MetricsBar
+              modelInputs={modelInputs}
+              position={position}
+              hoveredPoint={hoveredPoint}
+            />
+          </Card>
+          <Card className="shrink-0">
+            <ThresholdList
+              modelInputs={modelInputs}
+              position={position}
+              chartCap={chartCap}
+              hoveredPoint={hoveredPoint}
+            />
+          </Card>
+          <Card className="shrink-0">
+            <GreeksGrid
+              modelInputs={modelInputs}
+              hoveredPoint={hoveredPoint}
+            />
+          </Card>
+          <Card className="shrink-0">
+            <ModelTerms modelInputs={modelInputs} />
+          </Card>
+        </aside>
+      </div>
+    </div>
   );
 }
 

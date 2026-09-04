@@ -1,25 +1,17 @@
-import { formatDate } from "../lib/format";
-import {
-  daysBetween,
-  getBaseDaysToExpiry,
-  getDateAtOffset,
-  parseDateInputValue,
-  toDateInputValue,
-} from "../lib/time";
 import type { ModelInputs } from "../lib/types";
-import { NumberField } from "./NumberField";
+import { NumberField } from "./UI/NumberField";
 
 interface ModelInputsProps {
   modelInputs: ModelInputs;
-  onChange: (ModelInputs: ModelInputs) => void;
+  onChange: (modelInputs: ModelInputs) => void;
 }
 
 export function ModelPayOffInputs({ modelInputs, onChange }: ModelInputsProps) {
-  const maxDays = getBaseDaysToExpiry();
-
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-semibold text-slate-300">Model Inputs</h2>
+      <h2 className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+        Model Inputs
+      </h2>
 
       <NumberField
         label="HOVR ($)"
@@ -35,10 +27,10 @@ export function ModelPayOffInputs({ modelInputs, onChange }: ModelInputsProps) {
         onChange={(warrantPrice) => onChange({ ...modelInputs, warrantPrice })}
       />
 
-      <label className="block text-sm">
-        IV override (%){" "}
-        <span className="text-slate-500 text-xs">
-          blank uses market-implied IV
+      <label className="block text-xs uppercase tracking-wide text-zinc-400">
+        IV override (%)
+        <span className="ml-1 normal-case tracking-normal text-zinc-400">
+          blank = market
         </span>
         <input
           type="number"
@@ -57,67 +49,9 @@ export function ModelPayOffInputs({ modelInputs, onChange }: ModelInputsProps) {
               impliedVolOverride: raw === "" ? null : Number(raw) / 100,
             });
           }}
-          className="mt-1 w-full bg-slate-800 rounded px-2 py-1"
+          className="field-input mt-0.5"
         />
       </label>
-
-      <div className="text-sm">
-        <div className="flex justify-between">
-          <span>Model date</span>
-          <input
-            type="date"
-            value={toDateInputValue(
-              getDateAtOffset(modelInputs.modelDateOffsetDays),
-            )}
-            min={toDateInputValue(new Date())}
-            max={toDateInputValue(getDateAtOffset(maxDays))}
-            onChange={(e) => {
-              if (!e.target.value) return;
-              const picked = parseDateInputValue(e.target.value);
-              const offsetDays = Math.min(
-                Math.max(daysBetween(new Date(), picked), 0),
-                maxDays,
-              );
-              onChange({ ...modelInputs, modelDateOffsetDays: offsetDays });
-            }}
-            className="bg-slate-800 rounded px-2 py-0.5 text-sm"
-          />
-          <span>
-            {formatDate(getDateAtOffset(modelInputs.modelDateOffsetDays))}
-          </span>
-        </div>
-        <input
-          type="range"
-          min={0}
-          max={maxDays}
-          value={modelInputs.modelDateOffsetDays}
-          onChange={(e) =>
-            onChange({
-              ...modelInputs,
-              modelDateOffsetDays: Number(e.target.value),
-            })
-          }
-          className="mt-1 w-full"
-        />
-        <div className="flex gap-2 mt-1">
-          {[
-            { label: "Today", days: 0 },
-            { label: "6M", days: Math.min(183, maxDays) },
-            { label: "12M", days: Math.min(365, maxDays) },
-            { label: "Expiry", days: maxDays },
-          ].map((btn) => (
-            <button
-              key={btn.label}
-              onClick={() =>
-                onChange({ ...modelInputs, modelDateOffsetDays: btn.days })
-              }
-              className="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700"
-            >
-              {btn.label}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
