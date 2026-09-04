@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { formatCurrency, formatPercent, formatNumber } from "../format";
+import {
+  formatCurrency,
+  formatPercent,
+  formatNumber,
+  formatSignedPercent,
+  formatSignedCompactCurrency,
+  formatCompactCurrency,
+} from "../format";
 
 describe("formatCurrency", () => {
   it("formats a positive value with 2 decimals by default", () => {
@@ -41,6 +48,64 @@ describe("formatPercent", () => {
   it("returns a dash for non-finite input", () => {
     expect(formatPercent(NaN)).toBe("-");
     expect(formatPercent(Infinity)).toBe("-");
+  });
+});
+
+describe("formatSignedPercent", () => {
+  it("prefixes a plus for positive fractions", () => {
+    expect(formatSignedPercent(0.495)).toBe("+49.5%");
+  });
+
+  it("prefixes a minus for negative fractions", () => {
+    expect(formatSignedPercent(-0.233)).toBe("-23.3%");
+  });
+
+  it("omits a sign at zero", () => {
+    expect(formatSignedPercent(0)).toBe("0.0%");
+  });
+});
+
+describe("formatSignedCompactCurrency", () => {
+  it("uses K compact form with a leading plus", () => {
+    expect(formatSignedCompactCurrency(5000)).toBe("+$5.0K");
+  });
+
+  it("uses K compact form with a leading minus", () => {
+    expect(formatSignedCompactCurrency(-5000)).toBe("-$5.0K");
+  });
+
+  it("uses M compact form above a million", () => {
+    expect(formatSignedCompactCurrency(1_500_000)).toBe("+$1.5M");
+  });
+
+  it("keeps full dollars below one thousand", () => {
+    expect(formatSignedCompactCurrency(500)).toBe("+$500");
+  });
+
+  it("omits a sign at zero", () => {
+    expect(formatSignedCompactCurrency(0)).toBe("$0");
+  });
+});
+
+describe("formatCompactCurrency", () => {
+  it("uses billions with one decimal", () => {
+    expect(formatCompactCurrency(1_100_000_000)).toBe("$1.1B");
+  });
+
+  it("uses whole millions at 100M and above", () => {
+    expect(formatCompactCurrency(394_476_875)).toBe("$394M");
+  });
+
+  it("uses one decimal million below 100M", () => {
+    expect(formatCompactCurrency(71_000_000)).toBe("$71.0M");
+  });
+
+  it("uses K below one million", () => {
+    expect(formatCompactCurrency(100_000)).toBe("$100.0K");
+  });
+
+  it("keeps a leading minus", () => {
+    expect(formatCompactCurrency(-5000)).toBe("-$5.0K");
   });
 });
 

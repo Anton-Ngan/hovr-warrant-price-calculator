@@ -6,6 +6,18 @@ import echarts from "../lib/echarts-setup";
 import { SIMULATED_HISTORY } from "../lib/historical";
 import { formatCurrency, formatPercent } from "../lib/format";
 import type { HistoricalMetric } from "../lib/types";
+import { SegmentedControl } from "./UI/SegmentedControl";
+import {
+  CHART_COLORS,
+  areaGradient,
+  axisLabelStyle,
+  axisLineStyle,
+  legendChrome,
+  splitLineStyle,
+  tooltipChrome,
+  tooltipRow,
+  tooltipShell,
+} from "../lib/chartTheme";
 
 const ReactEChartsCore =
   (ReactEChartsCoreImport as unknown as { default?: typeof ReactEChartsCoreImport })
@@ -16,7 +28,7 @@ interface HistoricalChartProps {
   onMetricChange: (metric: HistoricalMetric) => void;
 }
 
-const PILLS: { id: HistoricalMetric, label: string }[] = [
+const PILLS: { id: HistoricalMetric; label: string }[] = [
   { id: "price", label: "Price" },
   { id: "iv", label: "IV" },
 ];
@@ -34,8 +46,11 @@ export const HistoricalChart = memo(function HistoricalChart({
           name: "HOVR",
           encode: { x: "date", y: "stockPrice" },
           showSymbol: false,
-          lineStyle: { color: "#3987e5", width: 2 },
-          areaStyle: { color: "#3987e5", opacity: 0.1 },
+          symbol: "circle",
+          symbolSize: 8,
+          lineStyle: { color: CHART_COLORS.stock, width: 2 },
+          itemStyle: { color: CHART_COLORS.stock },
+          areaStyle: { color: areaGradient(CHART_COLORS.stock) },
           animation: false,
         },
         {
@@ -43,7 +58,10 @@ export const HistoricalChart = memo(function HistoricalChart({
           name: "HOVRW",
           encode: { x: "date", y: "warrantPrice" },
           showSymbol: false,
-          lineStyle: { color: "#d95926", width: 2 },
+          symbol: "circle",
+          symbolSize: 8,
+          lineStyle: { color: CHART_COLORS.warrant, width: 2 },
+          itemStyle: { color: CHART_COLORS.warrant },
           animation: false,
         },
       ]
@@ -53,49 +71,52 @@ export const HistoricalChart = memo(function HistoricalChart({
           name: "IV",
           encode: { x: "date", y: "iv" },
           showSymbol: false,
-          lineStyle: { color: "#a78bfa", width: 2 },
-          areaStyle: { color: "#a78bfa", opacity: 0.12 },
+          symbol: "circle",
+          symbolSize: 8,
+          lineStyle: { color: CHART_COLORS.iv, width: 2 },
+          itemStyle: { color: CHART_COLORS.iv },
+          areaStyle: { color: areaGradient(CHART_COLORS.iv) },
           animation: false,
         },
       ];
 
   const option: EChartsOption = {
     backgroundColor: "transparent",
-    grid: { top: isPrice ? 40 : 24, right: 20, left: 56, bottom: 32 },
-    legend: isPrice
-      ? { top: 0, textStyle: { color: "#94a3b8", fontSize: 12 } }
-      : { show: false },
+    grid: { top: isPrice ? 56 : 24, right: 20, left: 56, bottom: 32 },
+    legend: isPrice ? legendChrome : { show: false },
     dataset: { source: SIMULATED_HISTORY },
     xAxis: {
       type: "time",
       axisLabel: {
-        color: "#94a3b8",
+        ...axisLabelStyle,
         formatter: (value: number) =>
           new Date(value).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
           }),
       },
-      axisLine: { lineStyle: { color: "#64748b" } },
+      axisLine: axisLineStyle,
       splitLine: { show: false },
     },
     yAxis: {
       type: "value",
       scale: true,
       axisLabel: {
-        color: "#94a3b8",
+        ...axisLabelStyle,
         formatter: (v: number) =>
           isPrice ? formatCurrency(v) : formatPercent(v),
       },
-      axisLine: { lineStyle: { color: "#64748b" } },
-      splitLine: { lineStyle: { color: "#1e293b", type: "dashed" } },
+      axisLine: axisLineStyle,
+      splitLine: splitLineStyle,
     },
     tooltip: {
+      ...tooltipChrome,
       trigger: "axis",
-      backgroundColor: "#0f172a",
-      borderColor: "#1e293b",
-      textStyle: { color: "#e2e8f0" },
-      confine: true,
+      axisPointer: {
+        type: "line",
+        snap: true,
+        lineStyle: { color: CHART_COLORS.stock, width: 1, type: "solid" },
+      },
       formatter: (raw) => {
         const params = Array.isArray(raw) ? raw : [raw];
         const idx = params[0]?.dataIndex;
@@ -108,40 +129,48 @@ export const HistoricalChart = memo(function HistoricalChart({
           year: "numeric",
         });
         if (isPrice) {
-          return [
+          return tooltipShell(
             when,
-            `HOVR: ${formatCurrency(p.stockPrice)}`,
-            `HOVRW: ${formatCurrency(p.warrantPrice)}`,
-          ].join("<br/>");
+            [
+              tooltipRow(
+                "HOVR",
+                formatCurrency(p.stockPrice),
+                CHART_COLORS.stock,
+              ),
+              tooltipRow(
+                "HOVRW",
+                formatCurrency(p.warrantPrice),
+                CHART_COLORS.warrant,
+              ),
+            ].join(""),
+          );
         }
-        return [when, `IV: ${formatPercent(p.iv)}`].join("<br/>");
+        return tooltipShell(
+          when,
+          tooltipRow("IV", formatPercent(p.iv), CHART_COLORS.iv),
+        );
       },
     },
     series,
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap justify-center gap-2">
-        {PILLS.map((pill) => (
-          <button
-            key={pill.id}
-            type="button"
-            onClick={() => onMetricChange(pill.id)}
-            className={`px-3 py-1 rounded text-sm ${
-              metric === pill.id ? "bg-blue-600" : "bg-slate-800 hover:bg-slate-700"
-            }`}
-          >
-            {pill.label}
-          </button>
-        ))}
+    <div className="h-full min-h-0 flex flex-col gap-2">
+      <div className="flex shrink-0">
+        <SegmentedControl
+          value={metric}
+          onChange={onMetricChange}
+          options={PILLS}
+        />
       </div>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        notMerge={true}
-        style={{ height: 500 }}
-      />
+      <div className="flex-1 min-h-0">
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          notMerge={true}
+          style={{ height: "100%", width: "100%" }}
+        />
+      </div>
     </div>
   );
 });

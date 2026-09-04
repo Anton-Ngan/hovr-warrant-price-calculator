@@ -2,20 +2,38 @@ import { memo, useLayoutEffect, useRef, useState } from "react";
 import type { ECharts } from "echarts/core";
 import ReactEChartsCoreImport from "echarts-for-react/lib/core";
 import type { EChartsOption } from "echarts";
+import type { LineSeriesOption } from "echarts/charts";
 import echarts from "../lib/echarts-setup";
 import { usePayoffData } from "../hooks/usePayoffData";
 import { computePositionQuantities } from "../lib/position";
-import { formatCurrency } from "../lib/format";
+import {
+  formatCompactCurrency,
+  formatCurrency,
+  formatSignedCompactCurrency,
+} from "../lib/format";
 import type { ModelInputs, Position } from "../lib/types";
 import type { PayoffPoint } from "../lib/payoff";
 import { HOVR } from "../lib/constants";
+import {
+  CHART_COLORS,
+  CHART_FONT,
+  areaGradient,
+  axisLabelStyle,
+  axisLineStyle,
+  endLabelPixelOffsets,
+  legendChrome,
+  pnlTextColor,
+  splitLineStyle,
+  tooltipChrome,
+  tooltipRow,
+  tooltipShell,
+} from "../lib/chartTheme";
 
-
-// CJS-guard to handle the default export of ReactEChartsCoreImport
-// If the import is the class itself, keep it as it is, otherwise unwrap the default export.
 const ReactEChartsCore =
   (ReactEChartsCoreImport as unknown as { default?: typeof ReactEChartsCoreImport })
     .default ?? ReactEChartsCoreImport;
+
+const FD_SHARES = HOVR.sharesOutstanding.value + HOVR.totalWarrants;
 
 interface PayoffChartProps {
   modelInputs: ModelInputs;
@@ -35,7 +53,23 @@ function computeYMax(points: PayoffPoint[]): number {
   return max;
 }
 
-export const PayoffChart = memo(function PayoffChart({ modelInputs, position, chartCap, onHover, }: PayoffChartProps) {
+function lineSeries(config: LineSeriesOption): LineSeriesOption {
+  return {
+    showSymbol: false,
+    symbol: "circle",
+    symbolSize: 8,
+    animation: false,
+    emphasis: { scale: false },
+    ...config,
+  };
+}
+
+export const PayoffChart = memo(function PayoffChart({
+  modelInputs,
+  position,
+  chartCap,
+  onHover,
+}: PayoffChartProps) {
   const points = usePayoffData(modelInputs, position, chartCap);
   const { costBasis } = computePositionQuantities(position, modelInputs);
 
@@ -50,7 +84,23 @@ export const PayoffChart = memo(function PayoffChart({ modelInputs, position, ch
   pinnedRef.current = pinned;
   onHoverRef.current = onHover;
   pointsRef.current = points;
-  
+
+  const yMin = -costBasis;
+  const yMax = 1.3 * computeYMax(points);
+  const last = points[points.length - 1];
+  const labelOffsets = last
+    ? endLabelPixelOffsets(
+        [
+          last.positionValue,
+          last.allStockPL,
+          last.allWarrantPL,
+          last.redeemedValue,
+        ],
+        yMin,
+        yMax,
+      )
+    : [0, 0, 0, 0];
+
   const markLineConfig = {
     silent: true,
     symbol: "none" as const,
@@ -58,144 +108,244 @@ export const PayoffChart = memo(function PayoffChart({ modelInputs, position, ch
     label: {
       position: "end" as const,
       formatter: (p: { name: string }) => p.name,
-      fontSize: 12,
+      fontSize: 11,
+      fontFamily: CHART_FONT,
     },
     data: [
       {
         name: `SPOT ${formatCurrency(modelInputs.stockPrice)}`,
         xAxis: modelInputs.stockPrice,
-        lineStyle: { color: "#22c55e", type: "dashed" as const },
-        label: { color: "#22c55e" },
+        lineStyle: { color: CHART_COLORS.spot, type: "dashed" as const },
+        label: { color: CHART_COLORS.spot },
       },
       {
         name: `STRIKE ${formatCurrency(HOVR.strike)}`,
         xAxis: HOVR.strike,
-        lineStyle: { color: "#eab308", type: "dashed" as const },
-        label: { color: "#eab308" },
+        lineStyle: { color: CHART_COLORS.strike, type: "dashed" as const },
+        label: { color: CHART_COLORS.strike },
       },
       {
         name: `REDEMPTION ${formatCurrency(HOVR.redemptionTrigger)}`,
         xAxis: HOVR.redemptionTrigger,
-        lineStyle: { color: "#ef4444", type: "dashed" as const },
-        label: { color: "#ef4444" },
+        lineStyle: {
+          color: CHART_COLORS.redemption,
+          type: "dashed" as const,
+        },
+        label: { color: CHART_COLORS.redemption },
       },
     ],
   };
 
   const option: EChartsOption = {
     backgroundColor: "transparent",
-    grid: { top: 70, right: 20, left: 60, bottom: 30 },
+    grid: { top: 64, right: 112, left: 64, bottom: 56 },
     legend: {
-      top: 0,
-      textStyle: { color: "#94a3b8", fontSize: 12 },
+      ...legendChrome,
+      data: [
+        { name: "Position", icon: "roundRect" },
+        { name: "All-stock P/L", icon: "roundRect" },
+        { name: "All-warrant P/L", icon: "roundRect" },
+        { name: "If redeemed", icon: "roundRect" },
+      ],
     },
     dataset: { source: points },
     xAxis: {
       type: "value",
       min: 0,
       max: chartCap,
-      axisLabel: { formatter: (v: number) => formatCurrency(v, 0), color: "#94a3b8" },
-      axisLine: { lineStyle: { color: "#64748b" } },
+      axisPointer: {
+        label: {
+          show: true,
+          backgroundColor: "#09090b",
+          borderColor: "rgba(255,255,255,0.08)",
+          borderWidth: 1,
+          borderRadius: 8,
+          padding: [4, 8],
+          color: "#f4f4f5",
+          fontFamily: CHART_FONT,
+          fontSize: 12,
+          formatter: (params: { value: unknown }) =>
+            formatCurrency(Number(params.value)),
+        },
+      },
+      axisLabel: {
+        ...axisLabelStyle,
+        hideOverlap: true,
+        formatter: (v: number) =>
+          `{price|${formatCurrency(v, 0)}}\n{fd|${formatCompactCurrency(v * FD_SHARES)} FD}`,
+        rich: {
+          price: {
+            color: "#e4e4e7",
+            fontSize: 12,
+            fontFamily: CHART_FONT,
+            fontWeight: 500,
+            lineHeight: 18,
+          },
+          fd: {
+            color: "#a1a1aa",
+            fontSize: 11,
+            fontFamily: CHART_FONT,
+            lineHeight: 15,
+          },
+        },
+      },
+      axisLine: axisLineStyle,
       splitLine: { show: false },
     },
     yAxis: {
       type: "value",
-      min: -costBasis,
-      max: 1.3 * computeYMax(points),
-      axisLabel: { formatter: (v: number) => formatCurrency(v, 0), color: "#94a3b8" },
-      axisLine: { lineStyle: { color: "#64748b" } },
-      splitLine: { lineStyle: { color: "#1e293b", type: "dashed" } },
+      min: yMin,
+      max: yMax,
+      axisPointer: { label: { show: false } },
+      axisLabel: {
+        ...axisLabelStyle,
+        formatter: (v: number) => formatCompactCurrency(v),
+      },
+      axisLine: axisLineStyle,
+      splitLine: splitLineStyle,
     },
     series: [
-      {
+      lineSeries({
         type: "line",
-        name: "Position Value",
+        name: "Position",
         encode: { x: "stockPrice", y: "positionValue" },
-        showSymbol: false,
-        lineStyle: { color: "#3987e5", width: 2 },
-        areaStyle: { color: "#3987e5", opacity: 0.08 },
-        animation: false,
+        lineStyle: { color: CHART_COLORS.position, width: 2.25 },
+        itemStyle: { color: CHART_COLORS.position },
+        areaStyle: { color: areaGradient(CHART_COLORS.position) },
         z: 3,
-      },
-      {
+        endLabel: {
+          show: true,
+          formatter: "POSITION",
+          color: CHART_COLORS.position,
+          fontSize: 11,
+          fontFamily: CHART_FONT,
+          fontWeight: 500,
+          offset: [8, labelOffsets[0]],
+        },
+      }),
+      lineSeries({
         type: "line",
-        name: "All Stock P/L",
+        name: "All-stock P/L",
         encode: { x: "stockPrice", y: "allStockPL" },
-        showSymbol: false,
-        lineStyle: { color: "#94a3b8", width: 1.5, type: "dashed" },
-        animation: false,
+        lineStyle: {
+          color: CHART_COLORS.stock,
+          width: 1.5,
+          type: "dashed",
+        },
+        itemStyle: { color: CHART_COLORS.stock },
         z: 1,
-      },
-      {
+        endLabel: {
+          show: true,
+          formatter: "ALL-STOCK P/L",
+          color: CHART_COLORS.stock,
+          fontSize: 11,
+          fontFamily: CHART_FONT,
+          fontWeight: 500,
+          offset: [8, labelOffsets[1]],
+        },
+      }),
+      lineSeries({
         type: "line",
-        name: "All Warrant P/L",
+        name: "All-warrant P/L",
         encode: { x: "stockPrice", y: "allWarrantPL" },
-        showSymbol: false,
-        lineStyle: { color: "#199e70", width: 1.5, type: "dashed" },
-        animation: false,
+        lineStyle: {
+          color: CHART_COLORS.warrant,
+          width: 1.5,
+          type: "dashed",
+        },
+        itemStyle: { color: CHART_COLORS.warrant },
         z: 2,
         markLine: markLineConfig,
-      },
-      {
+        endLabel: {
+          show: true,
+          formatter: "ALL-WARRANT P/L",
+          color: CHART_COLORS.warrant,
+          fontSize: 11,
+          fontFamily: CHART_FONT,
+          fontWeight: 500,
+          offset: [8, labelOffsets[2]],
+        },
+      }),
+      lineSeries({
         type: "line",
-        name: "If Redeemed",
+        name: "If redeemed",
         encode: { x: "stockPrice", y: "redeemedValue" },
-        showSymbol: false,
-        lineStyle: { color: "#d95926", width: 2 },
-        animation: false,
+        lineStyle: { color: CHART_COLORS.redeemed, width: 1.75 },
+        itemStyle: { color: CHART_COLORS.redeemed },
         z: 2,
-      },
+        endLabel: {
+          show: true,
+          formatter: "IF REDEEMED",
+          color: CHART_COLORS.redeemed,
+          fontSize: 11,
+          fontFamily: CHART_FONT,
+          fontWeight: 500,
+          offset: [8, labelOffsets[3]],
+        },
+      }),
     ],
     tooltip: {
-        trigger: "axis",
-        triggerOn: pinned ? "none" : "mousemove",
-        alwaysShowContent: pinned,
-        axisPointer: {
-          type: "line",
-          snap: true,
-          lineStyle: { color: "#64748b", type: "dashed" },
-          label: {
-            show: true,
-            backgroundColor: "#1e293b",
-            color: "#e2e8f0",
-            formatter: (params: { value: unknown }) =>
-              formatCurrency(Number(params.value)),
-          },
-        },
-        backgroundColor: "#0f172a",
-        borderColor: "#1e293b",
-        textStyle: { color: "#e2e8f0" },
-        confine: true,
-        formatter: (raw) => {
-          const params = Array.isArray(raw) ? raw : [raw];
-          const idx = params[0]?.dataIndex;
-          if (idx == null) return "";
-          const p = points[idx];
-          if (!p) return "";
-          return [
-            `Stock: ${formatCurrency(p.stockPrice)}`,
-            `Position Value: ${formatCurrency(p.positionValue, 0)}`,
-            `All Stock P/L: ${formatCurrency(p.allStockPL, 0)}`,
-            `All Warrant P/L: ${formatCurrency(p.allWarrantPL, 0)}`,
-            `If Redeemed: ${formatCurrency(p.redeemedValue, 0)}`,
-            `BS Fair: ${formatCurrency(p.warrantBSPrice)}`,
-            `Delta: ${p.delta.toFixed(3)}`,
-          ].join("<br/>");
-        },
+      ...tooltipChrome,
+      trigger: "axis",
+      triggerOn: pinned ? "none" : "mousemove",
+      alwaysShowContent: pinned,
+      axisPointer: {
+        type: "line",
+        snap: true,
+        lineStyle: { color: CHART_COLORS.position, width: 1, type: "solid" },
       },
+      formatter: (raw) => {
+        const params = Array.isArray(raw) ? raw : [raw];
+        const idx = params[0]?.dataIndex;
+        if (idx == null) return "";
+        const p = points[idx];
+        if (!p) return "";
+        const redeemedPL = p.redeemedValue - costBasis;
+        return tooltipShell(
+          `HOVR ${formatCurrency(p.stockPrice)}`,
+          [
+            tooltipRow(
+              "Position",
+              formatCurrency(p.positionValue, 0),
+              CHART_COLORS.position,
+              pnlTextColor(p.positionPL),
+            ),
+            tooltipRow(
+              "ALL stock P/L",
+              formatSignedCompactCurrency(p.allStockPL),
+              CHART_COLORS.stock,
+              pnlTextColor(p.allStockPL),
+            ),
+            tooltipRow(
+              "ALL warrant P/L",
+              formatSignedCompactCurrency(p.allWarrantPL),
+              CHART_COLORS.warrant,
+              pnlTextColor(p.allWarrantPL),
+            ),
+            tooltipRow(
+              "If redeemed (intrinsic)",
+              formatCurrency(p.redeemedValue, 0),
+              CHART_COLORS.redeemed,
+              pnlTextColor(redeemedPL),
+            ),
+          ].join(""),
+          tooltipRow("BS fair", formatCurrency(p.warrantBSPrice)),
+        );
+      },
+    },
   };
 
   function applyPinnedDecorations(chart: ECharts, idx: number) {
     const p = pointsRef.current[idx];
     if (!p) return;
-  
+
     chart.dispatchAction({
       type: "showTip",
       seriesIndex: 0,
       dataIndex: idx,
     });
   }
-  
+
   useLayoutEffect(() => {
     const chart = chartRef.current;
     const idx = pinnedIndexRef.current;
@@ -203,7 +353,7 @@ export const PayoffChart = memo(function PayoffChart({ modelInputs, position, ch
 
     const p = points[idx] ?? points[points.length - 1];
     if (!p) return;
-    
+
     pinnedIndexRef.current = points[idx] ? idx : points.length - 1;
     onHoverRef.current?.(p);
     applyPinnedDecorations(chart, idx);
@@ -213,9 +363,9 @@ export const PayoffChart = memo(function PayoffChart({ modelInputs, position, ch
     updateAxisPointer: (params: { dataIndex?: number }) => {
       if (params.dataIndex == null) return;
       lastHoverIndexRef.current = params.dataIndex;
-  
+
       if (pinnedRef.current) return;
-  
+
       const p = pointsRef.current[params.dataIndex];
       onHoverRef.current?.(p ?? null);
     },
@@ -225,19 +375,19 @@ export const PayoffChart = memo(function PayoffChart({ modelInputs, position, ch
       onHoverRef.current?.(null);
     },
   };
-  
+
   const handleChartReady = (chart: ECharts) => {
     chartRef.current = chart;
     chart.getZr().on("click", (event: { offsetX: number; offsetY: number }) => {
       if (!chart.containPixel("grid", [event.offsetX, event.offsetY])) return;
-  
+
       if (pinnedRef.current) {
         pinnedIndexRef.current = null;
         setPinned(false);
         chart.dispatchAction({ type: "hideTip" });
         return;
       }
-  
+
       const idx = lastHoverIndexRef.current;
       if (idx == null) return;
       pinnedIndexRef.current = idx;
@@ -247,13 +397,15 @@ export const PayoffChart = memo(function PayoffChart({ modelInputs, position, ch
   };
 
   return (
-    <ReactEChartsCore
-      echarts={echarts}
-      option={option}
-      notMerge={true}
-      style={{ height: 900 }}
-      onEvents={onEvents}
-      onChartReady={handleChartReady}
-    />
+    <div className="h-full min-h-0">
+      <ReactEChartsCore
+        echarts={echarts}
+        option={option}
+        notMerge={true}
+        style={{ height: "100%", width: "100%" }}
+        onEvents={onEvents}
+        onChartReady={handleChartReady}
+      />
+    </div>
   );
 });
