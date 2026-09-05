@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { buildHistory } from "./history.js";
 import { getCurrent } from "./finnhub.js";
+import { getLiveCache, startPoller } from "./poll.js";
 
 const app = express();
 
@@ -14,7 +15,7 @@ app.get("/api/history", (_req, res) => {
 
 app.get("/api/current", async (_req, res) => {
     try {
-      res.json(await getCurrent());
+      res.json(getLiveCache() ?? (await getCurrent()));
     } catch (err) {
       const message = err instanceof Error ? err.message : "quote failed";
       res.status(502).json({ error: message });
@@ -25,3 +26,5 @@ const port = Number(process.env.PORT ?? 3001);
 app.listen(port, () => {
   console.log(`listening on ${port}`);
 });
+
+startPoller()

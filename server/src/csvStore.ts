@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, appendFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -39,4 +39,23 @@ export function loadCSVClosePrices(ticker: Ticker): Map<string, number> {
     map.set(parseCsvDate(dateRaw), Number(closeRaw));
   }
   return map;
+}
+
+/** "2023-04-06" → "4/6/2023 16:00:00" */
+export function formatCsvRow(yyyyMmDd: string, close: number): string {
+  const [y, m, d] = yyyyMmDd.split("-").map(Number);
+  if (y === undefined || m === undefined || d === undefined) {
+    throw new Error(`Bad ISO date: ${yyyyMmDd}`);
+  }
+  return `${m}/${d}/${y} 16:00:00,${close}\n`;
+}
+
+export function appendCloseIfAbsent(
+  ticker: Ticker,
+  yyyyMmDd: string,
+  close: number,
+): boolean {
+  if (loadCSVClosePrices(ticker).has(yyyyMmDd)) return false;
+  appendFileSync(CSV_PATH[ticker], formatCsvRow(yyyyMmDd, close));
+  return true;
 }
