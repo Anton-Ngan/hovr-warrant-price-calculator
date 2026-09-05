@@ -1,5 +1,5 @@
-import { pdf, cdf } from "@stdlib/stats-base-dists-normal";
-
+import normal from "@stdlib/stats-base-dists-normal";
+const { pdf, cdf } = normal;
 export interface BlackScholesResult {
   price: number;
   delta: number;
