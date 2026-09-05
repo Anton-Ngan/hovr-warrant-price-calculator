@@ -21,6 +21,8 @@ import { Card } from "./components/UI/Card";
 import { ModelDateControl } from "./components/ModelDateControl";
 import { SegmentedControl } from "./components/UI/SegmentedControl";
 import { formatDate } from "./lib/format";
+import { useHistoricalData } from "./hooks/useHistoricalData";
+import { useMarketData } from "./hooks/useMarketData";
 
 function App() {
   const [modelInputs, setModelInputs] = useState<ModelInputs>({
@@ -29,6 +31,9 @@ function App() {
     impliedVolOverride: null,
     modelDateOffsetDays: 0,
   });
+  useMarketData(setModelInputs);
+  
+  const { points } = useHistoricalData();
 
   const [position, setPosition] = useState<Position>({
     mode: "plan",
@@ -125,6 +130,7 @@ function App() {
               <HistoricalChart
                 metric={historicalMetric}
                 onMetricChange={setHistoricalMetric}
+                points={points}
               />
             )}
           </Card>

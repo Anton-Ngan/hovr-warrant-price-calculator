@@ -3,10 +3,10 @@ import ReactEChartsCoreImport from "echarts-for-react/lib/core";
 import type { EChartsOption } from "echarts";
 import type { LineSeriesOption } from "echarts/charts";
 import echarts from "../lib/echarts-setup";
-import { SIMULATED_HISTORY } from "../lib/historical";
 import { formatCurrency, formatPercent } from "../lib/format";
 import type { HistoricalMetric } from "../lib/types";
 import { SegmentedControl } from "./UI/SegmentedControl";
+import type { HistoryPoint } from "../hooks/useHistoricalData";
 import {
   CHART_COLORS,
   areaGradient,
@@ -26,6 +26,7 @@ const ReactEChartsCore =
 interface HistoricalChartProps {
   metric: HistoricalMetric;
   onMetricChange: (metric: HistoricalMetric) => void;
+  points: HistoryPoint[];
 }
 
 const PILLS: { id: HistoricalMetric; label: string }[] = [
@@ -36,6 +37,7 @@ const PILLS: { id: HistoricalMetric; label: string }[] = [
 export const HistoricalChart = memo(function HistoricalChart({
   metric,
   onMetricChange,
+  points,
 }: HistoricalChartProps) {
   const isPrice = metric === "price";
 
@@ -84,7 +86,7 @@ export const HistoricalChart = memo(function HistoricalChart({
     backgroundColor: "transparent",
     grid: { top: isPrice ? 56 : 24, right: 20, left: 56, bottom: 32 },
     legend: isPrice ? legendChrome : { show: false },
-    dataset: { source: SIMULATED_HISTORY },
+    dataset: { source: points },
     xAxis: {
       type: "time",
       axisLabel: {
@@ -121,7 +123,7 @@ export const HistoricalChart = memo(function HistoricalChart({
         const params = Array.isArray(raw) ? raw : [raw];
         const idx = params[0]?.dataIndex;
         if (idx == null) return "";
-        const p = SIMULATED_HISTORY[idx];
+        const p = points[idx];
         if (!p) return "";
         const when = new Date(p.date).toLocaleDateString("en-US", {
           day: "2-digit",

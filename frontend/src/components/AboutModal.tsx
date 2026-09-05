@@ -93,14 +93,11 @@ export function AboutModal({ open, onClose }: AboutModalProps) {
                 time to expiry, then held fixed when you move the model date
                 (so you can see theta). An IV override replaces that.
               </li>
-              <li>
-                Historical charts are simulated until live market data (Phase 3).
-              </li>
             </ul>
           </div>
 
           <p className="text-zinc-400 text-sm leading-relaxed">
-            Informational only — not advice or a recommendation. Data and
+            Informational only, this is not advice or a recommendation. Data and
             calculations may be wrong or delayed. Black-Scholes is a model, not
             the market. Verify independently before making any decision.
           </p>
