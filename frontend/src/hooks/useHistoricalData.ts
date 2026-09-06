@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { apiUrl } from "../lib/api";
 
 export interface HistoryPoint {
   [key: string]: number;
@@ -14,7 +15,7 @@ export function useHistoricalData() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/history")
+    fetch(apiUrl("/api/history"))
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json() as Promise<HistoryPoint[]>;

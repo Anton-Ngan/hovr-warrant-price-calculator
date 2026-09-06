@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ModelInputs } from "../lib/types";
+import { apiUrl } from "../lib/api";
 
 interface CurrentQuote {
   stockPrice: number;
@@ -15,7 +16,7 @@ export function useMarketData(
 
   useEffect(() => {
     const pull = () => {
-      fetch("/api/current")
+      fetch(apiUrl("/api/current"))
         .then((r) => {
           if (!r.ok) throw new Error(`HTTP ${r.status}`);
           return r.json() as Promise<CurrentQuote>;

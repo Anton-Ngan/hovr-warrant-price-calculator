@@ -7,7 +7,12 @@ import { getLiveCache, startPoller } from "./poll.js";
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:5173" }));
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_ORIGIN,
+].filter((origin): origin is string => Boolean(origin));
+
+app.use(cors({ origin: allowedOrigins }));
 
 app.get("/api/history", (_req, res) => {
   res.json(buildHistory());
