@@ -2,7 +2,25 @@
 
 A single-page warrant payoff analyzer for Horizon Aircraft (`HOVR` / `HOVRW`). It prices the warrant with Black-Scholes, lets you plan or track a mixed stock+warrant book, and compares that book to all-stock, all-warrant, and forced-redemption outcomes.
 
+**Live app:** [hovr-warrant-price-calculator.vercel.app](https://hovr-warrant-price-calculator.vercel.app/)
+
+![HOVR & HOVRW Risk Profile walkthrough](assets/webpage.gif)
+
 Informational only — not advice. Data may be delayed or wrong. Verify independently.
+
+## Screenshots
+
+**Model payoff** — position vs all-stock, all-warrant, and if-redeemed, with spot / strike / redemption marks.
+
+![Model payoff chart at today’s spot](assets/webpage-screenshot-1.png)
+
+**Hover / pin** — metrics, Greeks, and TVaR follow the cursor along the curve.
+
+![Payoff chart hovered at a higher stock price](assets/webpage-screenshot-2.png)
+
+**Historical IV** — implied vol solved each day from HOVR and HOVRW closes.
+
+![Historical implied volatility chart](assets/webpage-screenshot-3.png)
 
 ## What it does
 
