@@ -23,11 +23,13 @@ const ReactEChartsCore =
   (ReactEChartsCoreImport as unknown as { default?: typeof ReactEChartsCoreImport })
     .default ?? ReactEChartsCoreImport;
 
-interface HistoricalChartProps {
-  metric: HistoricalMetric;
-  onMetricChange: (metric: HistoricalMetric) => void;
-  points: HistoryPoint[];
-}
+    interface HistoricalChartProps {
+      metric: HistoricalMetric;
+      onMetricChange: (metric: HistoricalMetric) => void;
+      points: HistoryPoint[];
+      loading: boolean;
+      error: string | null;
+    }
 
 const PILLS: { id: HistoricalMetric; label: string }[] = [
   { id: "price", label: "Price" },
@@ -38,6 +40,8 @@ export const HistoricalChart = memo(function HistoricalChart({
   metric,
   onMetricChange,
   points,
+  loading,
+  error,
 }: HistoricalChartProps) {
   const isPrice = metric === "price";
 
@@ -166,12 +170,22 @@ export const HistoricalChart = memo(function HistoricalChart({
         />
       </div>
       <div className="flex-1 min-h-0">
-        <ReactEChartsCore
-          echarts={echarts}
-          option={option}
-          notMerge={true}
-          style={{ height: "100%", width: "100%" }}
-        />
+        {loading ? (
+          <p className="h-full flex items-center justify-center text-sm text-zinc-500">
+            Loading history…
+          </p>
+        ) : error ? (
+          <p className="h-full flex items-center justify-center text-sm text-rose-400/90 px-4 text-center">
+            Could not load history. Is the server running on port 3001?
+          </p>
+        ) : (
+          <ReactEChartsCore
+            echarts={echarts}
+            option={option}
+            notMerge={true}
+            style={{ height: "100%", width: "100%" }}
+          />
+        )}
       </div>
     </div>
   );

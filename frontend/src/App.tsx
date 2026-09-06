@@ -33,7 +33,7 @@ function App() {
   });
   useMarketData(setModelInputs);
   
-  const { points } = useHistoricalData();
+  const { points, error: historyError, loading: historyLoading } = useHistoricalData();
 
   const [position, setPosition] = useState<Position>({
     mode: "plan",
@@ -131,6 +131,8 @@ function App() {
                 metric={historicalMetric}
                 onMetricChange={setHistoricalMetric}
                 points={points}
+                loading={historyLoading}
+                error={historyError}
               />
             )}
           </Card>
