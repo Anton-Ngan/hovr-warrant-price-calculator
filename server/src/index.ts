@@ -14,8 +14,13 @@ const allowedOrigins = [
 
 app.use(cors({ origin: allowedOrigins }));
 
-app.get("/api/history", (_req, res) => {
-  res.json(buildHistory());
+app.get("/api/history", async (_req, res) => {
+  try {
+    res.json(await buildHistory());
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "history failed";
+    res.status(500).json({ error: message });
+  }
 });
 
 app.get("/api/current", async (_req, res) => {

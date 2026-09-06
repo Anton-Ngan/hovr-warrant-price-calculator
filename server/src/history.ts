@@ -1,7 +1,7 @@
 import { HOVR, RISK_FREE_RATE } from "./lib/constants.js";
 import { solveIV } from "./lib/pricing.js";
 import { yearsBetween } from "./lib/time.js";
-import { loadCSVClosePrices } from "./csvStore.js";
+import { loadCloses } from "./closesStore.js";
 
 export interface HistoryPoint {
   date: number;
@@ -10,9 +10,9 @@ export interface HistoryPoint {
   iv: number;
 }
 
-export function buildHistory(): HistoryPoint[] {
-  const stocks = loadCSVClosePrices("HOVR");
-  const warrants = loadCSVClosePrices("HOVRW");
+export async function buildHistory(): Promise<HistoryPoint[]> {
+  const stocks = await loadCloses("HOVR");
+  const warrants = await loadCloses("HOVRW");
   const expiry = new Date(`${HOVR.expiry}T00:00:00`);
   const points: HistoryPoint[] = [];
 

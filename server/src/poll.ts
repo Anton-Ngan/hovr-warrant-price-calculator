@@ -1,6 +1,6 @@
-import { appendCloseIfAbsent, type Ticker } from "./csvStore.js";
 import { fetchQuote, type Quote } from "./finnhub.js";
 import { formatEtDate, isAfterCloseEt, isWeekdayEt } from "./marketHours.js";
+import { appendCloseIfAbsent, type Ticker } from "./closesStore.js";
 
 export interface LiveQuotes {
   stockPrice: number;
@@ -14,7 +14,7 @@ export function getLiveCache(): LiveQuotes | null {
   return liveCache;
 }
 
-function maybeAppend(ticker: Ticker, quote: Quote, now: Date): void {
+async function maybeAppend(ticker: Ticker, quote: Quote, now: Date): void {
   if (!isWeekdayEt(now) || !isAfterCloseEt(now)) return;
 
   const todayEt = formatEtDate(now);
@@ -23,7 +23,7 @@ function maybeAppend(ticker: Ticker, quote: Quote, now: Date): void {
   // Skip if the trade day is not today.
   if (tradeDayEt !== todayEt) return;  
 
-  const wrote = appendCloseIfAbsent(ticker, todayEt, quote.c);
+  const wrote = await appendCloseIfAbsent(ticker, todayEt, quote.c);
   if (wrote) console.log(`appended ${ticker} ${todayEt} ${quote.c}`);
 }
 
@@ -40,8 +40,8 @@ export async function pollOnce(): Promise<void> {
     timestamp: Date.now(),
   };
 
-  maybeAppend("HOVR", stock, now);
-  maybeAppend("HOVRW", warrant, now);
+  await maybeAppend("HOVR", stock, now);
+  await maybeAppend("HOVRW", warrant, now);
 }
 
 export function startPoller(ms = 60_000): void {
