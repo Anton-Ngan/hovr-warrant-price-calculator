@@ -1,17 +1,32 @@
 import type { ModelInputs } from "../lib/types";
 import { NumberField } from "./UI/NumberField";
+import type { QuoteStatus } from "../hooks/useMarketData";
 
 interface ModelInputsProps {
   modelInputs: ModelInputs;
   onChange: (modelInputs: ModelInputs) => void;
+  quoteStatus: QuoteStatus;
 }
 
-export function ModelPayOffInputs({ modelInputs, onChange }: ModelInputsProps) {
+export function ModelPayOffInputs({ modelInputs, onChange, quoteStatus }: ModelInputsProps) {
   return (
     <div className="space-y-3">
       <h2 className="text-xs font-medium uppercase tracking-wide text-zinc-400">
         Model Inputs
       </h2>
+      <p
+        className={
+          quoteStatus === "error"
+            ? "text-xs text-rose-400/90"
+            : quoteStatus === "live"
+              ? "text-xs text-emerald-400/80"
+              : "text-xs text-zinc-500"
+        }
+      >
+        {quoteStatus === "loading" && "Fetching live prices…"}
+        {quoteStatus === "live" && "Live · updates every 60s"}
+        {quoteStatus === "error" && "Live prices unavailable"}
+      </p>
 
       <NumberField
         label="HOVR ($)"

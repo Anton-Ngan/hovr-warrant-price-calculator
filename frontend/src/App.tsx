@@ -31,7 +31,7 @@ function App() {
     impliedVolOverride: null,
     modelDateOffsetDays: 0,
   });
-  useMarketData(setModelInputs);
+  const { quoteStatus } = useMarketData(setModelInputs);
   
   const { points, error: historyError, loading: historyLoading } = useHistoricalData();
 
@@ -88,6 +88,7 @@ function App() {
             <ModelPayOffInputs
               modelInputs={modelInputs}
               onChange={setModelInputs}
+              quoteStatus={quoteStatus}
             />
           </Card>
         </aside>
