@@ -55,8 +55,8 @@ function App() {
   const [aboutOpen, setAboutOpen] = useState(false);
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col bg-zinc-950 text-zinc-100 font-sans">
-      <header className="shrink-0 flex items-center justify-between gap-4 px-4 py-2 border-b border-white/5">
+    <div className="min-h-dvh lg:h-screen lg:overflow-hidden flex flex-col bg-zinc-950 text-zinc-100 font-sans">
+      <header className="shrink-0 flex items-center justify-between gap-2 px-3 py-2 lg:gap-4 lg:px-4 border-b border-white/5">
         <div className="flex items-baseline gap-3 min-w-0">
           <h1 className="text-lg font-semibold tracking-tight truncate">
             {HOVR.stockTicker} & {HOVR.warrantTicker} Risk Profile
@@ -75,8 +75,8 @@ function App() {
         <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
       </header>
 
-      <div className="flex-1 min-h-0 grid grid-cols-[280px_minmax(0,1fr)_300px] gap-3 p-3">
-        <aside className="min-h-0 flex flex-col gap-3 overflow-y-auto">
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)_300px] gap-3 p-3 overflow-y-auto lg:overflow-hidden">
+        <aside className="flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto">
           <Card className="shrink-0">
             <PositionBuilder
               position={position}
@@ -93,8 +93,8 @@ function App() {
           </Card>
         </aside>
 
-        <main className="min-h-0 flex flex-col gap-2">
-          <div className="flex items-start gap-3 shrink-0">
+        <main className="flex flex-col gap-2 lg:min-h-0">
+          <div className="flex flex-wrap items-start gap-3 shrink-0">
             <div className="shrink-0 pt-0.5">
               <SegmentedControl
                 value={viewMode}
@@ -119,7 +119,7 @@ function App() {
             ) : null}
           </div>
 
-          <Card className="flex-1 min-h-0 p-2 overflow-hidden">
+          <Card className="flex-1 min-h-[320px] h-[50vh] lg:h-auto lg:min-h-0 p-2 overflow-hidden">
             {viewMode === "model" ? (
               <PayoffChart
                 modelInputs={deferredModelInputs}
@@ -139,7 +139,7 @@ function App() {
           </Card>
         </main>
 
-        <aside className="min-h-0 flex flex-col gap-3 overflow-y-auto">
+        <aside className="flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto">
           <Card className="shrink-0">
             <MetricsBar
               modelInputs={modelInputs}
