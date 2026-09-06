@@ -81,6 +81,21 @@ export function AboutModal({ open, onClose }: AboutModalProps) {
 
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">
+              Data
+            </h3>
+            <ul className="list-disc pl-4 space-y-1 text-zinc-300">
+              <li>
+                Live {HOVR.stockTicker} and {HOVR.warrantTicker} prices come from
+                Finnhub. 
+              </li>
+              <li>
+                The historical chart uses daily closes from Google Finance.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">
               What it assumes
             </h3>
             <ul className="list-disc pl-4 space-y-1 text-zinc-300">
@@ -92,6 +107,11 @@ export function AboutModal({ open, onClose }: AboutModalProps) {
                 Implied vol is solved from today&apos;s HOVRW price and today&apos;s
                 time to expiry, then held fixed when you move the model date
                 (so you can see theta). An IV override replaces that.
+              </li>
+              <li>
+                Historical IV uses today&apos;s strike and expiry on every past
+                day. Early 2023 prints can sit below the model&apos;s minimum
+                price; those days show a floor vol, not a fitted market IV.
               </li>
             </ul>
           </div>
